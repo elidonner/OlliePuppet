@@ -2,6 +2,6 @@
     "configuration": "PartitionScheme=default,UploadSpeed=921600,DebugLevel=none",
     "board": "esp32:esp32:pico32",
     "output": "../ArduinoOutput",
-    "sketch": "Test.ino",
+    "sketch": "tests/servo_calibration/servo_calibration.ino",
     "port": "/dev/tty.usbserial-143120"
 }
