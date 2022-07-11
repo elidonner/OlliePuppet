@@ -1,0 +1,7 @@
+{
+    "port": "/dev/tty.usbserial-141130",
+    "configuration": "PartitionScheme=default,UploadSpeed=921600,DebugLevel=none",
+    "board": "esp32:esp32:pico32",
+    "sketch": "Esp32/tests/servo-playback/servo-playback.ino",
+    "output": "../ArduinoOutput"
+}

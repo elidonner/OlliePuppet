@@ -11,16 +11,16 @@
 #include <Ps3Controller.h>
 #include <SPI.h>
 #include <SD.h>
+#include <FS.h>
 #include "espServo.h"
 
 /**
- * Pin DefinitionsP
+ * Pin Definitions
  */
-const int chipSelect = 4;
-// Analog pin for potentiometer
-int analogPin = 0;
-// Integer to hold potentiometer value
-int val = 0;
+#define SCK  18
+#define MISO  19
+#define MOSI  23
+#define CS  5
 
 /**
  * Miscellaneous Definitions
@@ -38,6 +38,7 @@ int val = 0;
  * Global Objects
  */
 espServo earServo(0, 0, 1.0, 2.0);
+SPIClass spi = SPIClass(VSPI);
 
 /* -------------------------------------------------------------------------- */
 
@@ -51,16 +52,9 @@ void notify()
     int yAxisValue = (Ps3.data.analog.stick.ry);     // right servo movement
     int leftShoulder = (Ps3.data.analog.button.l1);  // left shoulder button
     int rightShoulder = (Ps3.data.analog.button.r1); // right shoulder button
-    
-    Serial.println(throttle);
-    // make a string for assembling the data to log:
-    String dataString = "";
 
-    // Read pot value and append to the string
-    // Map to range of 0-180 for servo
-    val = map(throttle, 128, -128, 0, 100);
-
-    dataString += String(val);
+    // Read ps3 stick and append to data string
+    int val = map(throttle, 128, -128, 0, 100);
 
     // Write to the servo
     // Delay to allow servo to settle in position
@@ -69,21 +63,7 @@ void notify()
 
     // open the file. note that only one file can be open at a time,
     // so you have to close this one before opening another.
-    File dataFile = SD.open("servopos.txt", FILE_WRITE);
-
-    // if the file is available, write to it:
-    if (dataFile)
-    {
-        dataFile.println(dataString);
-        dataFile.close();
-        // print to the serial port too:
-        Serial.println(dataString);
-    }
-    // if the file isn't open, pop up an error:
-    else
-    {
-        Serial.println("error opening servopos.txt");
-    }
+    appendFile(SD, "/hello.txt", val);
 
     // throttle = (throttle >= 0 ? throttle : 0);
     // baseSpeed = throttle/100.0;
@@ -98,9 +78,35 @@ void notify()
     // base.driveCartesian(baseSpeed * 1.0, 0.0, 0.0);
 }
 
+void appendFile(fs::FS &fs, const char * path, int message){
+  Serial.printf("Appending to file: %s\n", path);
+
+  File file = fs.open(path, FILE_APPEND);
+  if(!file){
+    Serial.println("Failed to open file for appending");
+    return;
+  }
+  if(file.printf("%d\n", message)){
+    Serial.println("Message appended");
+  } else {
+    Serial.println("Append failed");
+  }
+  file.close();
+}
+
+void deleteFile(fs::FS &fs, const char * path){
+  Serial.printf("Deleting file: %s\n", path);
+  if(fs.remove(path)){
+    Serial.println("File deleted");
+  } else {
+    Serial.println("Delete failed");
+  }
+}
+
 void onConnect()
 {
     Serial.println("Connected!.");
+    deleteFile(SD, "/hello.txt");
 }
 
 void onDisConnect()
@@ -114,9 +120,27 @@ void setup()
 {
     // General
     Serial.begin(115200);
-    while (!Serial)
+    delay(3000);
+
+    //SD Card
+    spi.begin(SCK, MISO, MOSI, CS);
+
+    if (!SD.begin(CS,spi,80000000)) {
+        Serial.println("Card Mount Failed");
+        return;
+    } else 
     {
-    };
+        Serial.println("Card Mounted");
+    }
+    uint8_t cardType = SD.cardType();
+
+    if(cardType == CARD_NONE){
+        Serial.println("No SD card attached");
+        return;
+    } else 
+    {
+        Serial.println("SD card attached");
+    }
 
     // PS3 Controller
     Ps3.attach(notify);
@@ -124,18 +148,6 @@ void setup()
     Ps3.attachOnDisconnect(onDisConnect);
     Ps3.begin("00:1b:fb:94:e6:94");
     Serial.println("Ready.");
-
-    Serial.print("Initializing SD card...");
-
-    // see if the card is present and can be initialized:
-    if (!SD.begin(chipSelect))
-    {
-        Serial.println("Card failed, or not present");
-        // don't do anything more:
-        while (1)
-            ;
-    }
-    Serial.println("card initialized.");
 }
 
 void loop()
