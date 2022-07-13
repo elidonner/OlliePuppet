@@ -17,14 +17,15 @@
 /**
  * Pin Definitions
  */
-#define SCK  18
-#define MISO  19
-#define MOSI  23
-#define CS  5
+#define SCK 18
+#define MISO 19
+#define MOSI 23
+#define CS 5
 
 /**
  * Miscellaneous Definitions
  */
+// #define RECORD
 
 /**
  * Constants
@@ -37,7 +38,12 @@
 /**
  * Global Objects
  */
-espServo earServo(0, 0, 1.0, 2.0);
+// espServo leftEarServo(25, 0, 1.33, 2.0);
+// espServo rightEarServo(26, 2, 1.33, 2.0);
+espServo rightNeck(32, 4, 1.0, 2.3);
+espServo leftNeck(33, 6, 1.0, 2.3);
+// espServo mouthServo(25, 0, 1.33, 1.80)
+
 SPIClass spi = SPIClass(VSPI);
 
 /* -------------------------------------------------------------------------- */
@@ -47,115 +53,135 @@ SPIClass spi = SPIClass(VSPI);
  */
 void notify()
 {
-    int throttle = (Ps3.data.analog.stick.ly);       // Left stick  - y axis - throttle control
-    int xAxisValue = (Ps3.data.analog.stick.rx);     // left servo movement
-    int yAxisValue = (Ps3.data.analog.stick.ry);     // right servo movement
-    int leftShoulder = (Ps3.data.analog.button.l1);  // left shoulder button
-    int rightShoulder = (Ps3.data.analog.button.r1); // right shoulder button
+  int leftNeckThrottle = (Ps3.data.analog.stick.ly);       // Left stick  - y axis - throttle control
+  int rightNeckThrottle = (Ps3.data.analog.stick.ry);       // Left stick  - y axis - throttle control
+  int leftShoulder = (Ps3.data.analog.button.l1);  // left shoulder button
+  int rightShoulder = (Ps3.data.analog.button.r1); // right shoulder button
 
-    // Read ps3 stick and append to data string
-    int val = map(throttle, 128, -128, 0, 100);
+  // Read ps3 stick and append to data string
+  int leftVal = map(leftNeckThrottle, 128, -128, 0, 100);
+  int rightVal = map(rightNeckThrottle, -128, 128, 0, 100);
 
-    // Write to the servo
-    // Delay to allow servo to settle in position
-    earServo.sendServo(val);
-    delay(15);
+  // Write to the servo
+  // Delay to allow servo to settle in position
+  leftNeck.sendServo(leftVal);
+  rightNeck.sendServo(rightVal);
+  delay(15);
 
-    // open the file. note that only one file can be open at a time,
-    // so you have to close this one before opening another.
-    appendFile(SD, "/hello.txt", val);
+// open the file. note that only one file can be open at a time,
+// so you have to close this one before opening another.
+#ifdef RECORD
+  appendFile(SD, "/hello.txt", val);
+#endif
 
-    // throttle = (throttle >= 0 ? throttle : 0);
-    // baseSpeed = throttle/100.0;
+  // throttle = (throttle >= 0 ? throttle : 0);
+  // baseSpeed = throttle/100.0;
 
-    // xAxisValue = map( xAxisValue, 127, -127, -255, 255);
-    // yAxisValue = map( yAxisValue, 127, -127, -255, 255);
+  // xAxisValue = map( xAxisValue, 127, -127, -255, 255);
+  // yAxisValue = map( yAxisValue, 127, -127, -255, 255);
 
-    // double steeringMag = sqrt(xAxisValue^2 + yAxisValue^2);
-    // double steeringX = xAxisValue/steeringMag;
-    // double steeringY = xAxisValue/steeringMag;
+  // double steeringMag = sqrt(xAxisValue^2 + yAxisValue^2);
+  // double steeringX = xAxisValue/steeringMag;
+  // double steeringY = xAxisValue/steeringMag;
 
-    // base.driveCartesian(baseSpeed * 1.0, 0.0, 0.0);
+  // base.driveCartesian(baseSpeed * 1.0, 0.0, 0.0);
 }
 
-void appendFile(fs::FS &fs, const char * path, int message){
+void appendFile(fs::FS &fs, const char *path, int message)
+{
   Serial.printf("Appending to file: %s\n", path);
 
   File file = fs.open(path, FILE_APPEND);
-  if(!file){
+  if (!file)
+  {
     Serial.println("Failed to open file for appending");
     return;
   }
-  if(file.printf("%d\n", message)){
+  if (file.printf("%d\n", message))
+  {
     Serial.println("Message appended");
-  } else {
+  }
+  else
+  {
     Serial.println("Append failed");
   }
   file.close();
 }
 
-void deleteFile(fs::FS &fs, const char * path){
+void deleteFile(fs::FS &fs, const char *path)
+{
   Serial.printf("Deleting file: %s\n", path);
-  if(fs.remove(path)){
+  if (fs.remove(path))
+  {
     Serial.println("File deleted");
-  } else {
+  }
+  else
+  {
     Serial.println("Delete failed");
   }
 }
 
 void onConnect()
 {
-    Serial.println("Connected!.");
-    deleteFile(SD, "/hello.txt");
+  Serial.println("Connected!.");
+#ifdef RECORD
+  deleteFile(SD, "/hello.txt");
+#endif
 }
 
 void onDisConnect()
 {
-    Serial.println("Disconnected!.");
+  Serial.println("Disconnected!.");
 }
 
 /* -------------------------------------------------------------------------- */
 
 void setup()
 {
-    // General
-    Serial.begin(115200);
-    delay(3000);
+  // General
+  Serial.begin(115200);
+  delay(3000);
 
-    //SD Card
-    spi.begin(SCK, MISO, MOSI, CS);
+#ifdef RECORD
+  // SD Card
+  spi.begin(SCK, MISO, MOSI, CS);
 
-    if (!SD.begin(CS,spi,80000000)) {
-        Serial.println("Card Mount Failed");
-        return;
-    } else 
-    {
-        Serial.println("Card Mounted");
-    }
-    uint8_t cardType = SD.cardType();
+  if (!SD.begin(CS, spi, 80000000))
+  {
+    Serial.println("Card Mount Failed");
+    return;
+  }
+  else
+  {
+    Serial.println("Card Mounted");
+  }
+  uint8_t cardType = SD.cardType();
 
-    if(cardType == CARD_NONE){
-        Serial.println("No SD card attached");
-        return;
-    } else 
-    {
-        Serial.println("SD card attached");
-    }
+  if (cardType == CARD_NONE)
+  {
+    Serial.println("No SD card attached");
+    return;
+  }
+  else
+  {
+    Serial.println("SD card attached");
+  }
+#endif
 
-    // PS3 Controller
-    Ps3.attach(notify);
-    Ps3.attachOnConnect(onConnect);
-    Ps3.attachOnDisconnect(onDisConnect);
-    Ps3.begin("00:1b:fb:94:e6:94");
-    Serial.println("Ready.");
+  // PS3 Controller
+  Ps3.attach(notify);
+  Ps3.attachOnConnect(onConnect);
+  Ps3.attachOnDisconnect(onDisConnect);
+  Ps3.begin("00:1b:fb:94:e6:94");
+  Serial.println("Ready.");
 }
 
 void loop()
 {
-    if (!Ps3.isConnected())
-    {
-    }
-    else
-    {
-    }
+  if (!Ps3.isConnected())
+  {
+  }
+  else
+  {
+  }
 }
