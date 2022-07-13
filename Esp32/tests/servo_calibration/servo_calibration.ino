@@ -3,7 +3,7 @@ float servo_pulse = 1.0;
 
 
 /**** SERVOSTUFF *****/
-#define SERVOPIN 25
+#define SERVOPIN 33
 // 40KHz > freq*resolution > 40MHz
 #define LEDC_RES_BITS 12        // cannot be higher than 14 bits
 #define LEDC_RES ((1<<LEDC_RES_BITS)-1)
@@ -39,6 +39,20 @@ void loop() {
   else if (c == '-') {
     servo_pulse-=0.01;
   }
+  // else if(c == '<'){
+  //   c = Serial.read();
+  //   char string_pulse[3];
+  //   int i =0;
+  //   while(i < '2'){
+  //     string_pulse[i] = c;
+  //     c = Serial.read();
+  //     i++;
+  //   }
+  //   string_pulse[3] = "\0";
+  //   int ans = atoi(string_pulse);
+  //   servo_pulse = 1.00+ ans/100.0;
+
+  // }
   // ignore anything else
   else 
     return;

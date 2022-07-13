@@ -4,6 +4,7 @@
 const uint8_t numBytes = 32;
 uint8_t receivedBytes[numBytes];
 uint8_t numReceived = 0;
+int initialState;
 
 bool newData = false;
 
@@ -15,18 +16,20 @@ void setup()
 {
     SerialPort.begin(115200, SERIAL_8N1, 9, 10);
     Serial.begin(115200);
-    pinMode(15, INPUT);
+    pinMode(LED, INPUT);
+    initialState = digitalRead(LED);
 }
 
 void recvBytesWithStartEndMarkers() {
     static bool recvInProgress = false;
     static uint8_t ndx = 0;
-    uint8_t startMarker = 0x3C; //this is the start marker <
-    uint8_t endMarker = 0x3E; //this is the start marker >
+    uint8_t startMarker = 0x02;//0x3C; //this is the start marker <
+    uint8_t endMarker = 0x03;//0x3E; //this is the start marker >
     uint8_t rb;
    
     while (SerialPort.available() > 0 && newData == false) {
         rb = SerialPort.read();
+        Serial.println(rb);
 
         if (recvInProgress == true) {
             if (rb != endMarker) {
@@ -37,6 +40,8 @@ void recvBytesWithStartEndMarkers() {
                 }
             }
             else {
+                receivedBytes[ndx] = rb;
+                ndx++;
                 receivedBytes[ndx] = '\0'; // terminate the string
                 recvInProgress = false;
                 numReceived = ndx;  // save the number for use when printing
@@ -46,6 +51,8 @@ void recvBytesWithStartEndMarkers() {
         }
 
         else if (rb == startMarker) {
+            receivedBytes[ndx] = rb;
+            ndx++;
             recvInProgress = true;
         }
     }
@@ -54,7 +61,7 @@ void recvBytesWithStartEndMarkers() {
 void showNewData() {
     if (newData == true) {
         for (uint8_t n = 0; n < numReceived; n++) {
-            Serial.write(receivedBytes[n]);
+            Serial.print(receivedBytes[n]);
         }
         Serial.println();
         newData = false;
@@ -62,12 +69,12 @@ void showNewData() {
 }
 
 void loop() {
-    static int oldState = 1;
     recvBytesWithStartEndMarkers();
     showNewData();
-    if(digitalRead(LED) != oldState){
-        SerialPort.write("<Hello Pi>");
-        oldState = oldState == 1 ? 0:1;
+    if(digitalRead(LED) != initialState){
+        Serial.println("button pressed");
+        while(digitalRead(LED) != initialState){};
+        Serial.println("button released");
+        SerialPort.print("PLAY /audio/Recording.mp4\r");
     }
-
 }
