@@ -1,6 +1,11 @@
 #ifndef SERVO_HPP_INCLUDED
 #define SERVO_HPP_INCLUDED
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <signal.h>
+#include <pigpio.h>
+
 class Servo
 {
 

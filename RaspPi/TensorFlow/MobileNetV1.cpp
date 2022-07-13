@@ -18,7 +18,7 @@ UltraPerson::UltraPerson(const std::string &yolo_path, int input_width = 300, in
 
     interpreter->AllocateTensors();
 
-    // Get the names
+//     Get the names
     bool result = getFileContent("./TensorFlow/COCO_labels.txt");
     if (!result)
     {
@@ -81,10 +81,11 @@ int UltraPerson::detect(Mat &src, std::vector<PersonInfo> &personList)
     for (int i = 0; i < num_detections; i++)
     {
         int det_index = (int)detection_classes[i] + 1;
-        if (det_index == 1) //check that it's a person
+        if (det_index == 1) //check that it's a person, that is all we care about
         {
             if (detection_scores[i] > score_threshold)
             {
+
 
                 PersonInfo rects;
                 memset(&rects, 0, sizeof(rects));

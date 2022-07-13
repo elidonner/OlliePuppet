@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <pigpio.h>
 #include "servo.hpp"
 
 Servo::Servo(int pin,
