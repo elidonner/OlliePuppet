@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 #ifdef FaceDetection
     UltraFace deepModel("./MNN/slim-320-quant-ADMM-50.mnn", 320, 240, 4, 0.65); // config model input
 #else
-    UltraPerson deepModel("./TensorFlow/detect.tflite", 300, 300, 4, 0.5);
+    UltraPerson deepModel("./TensorFlow/detect.tflite", 300, 300, 4, 0.6);
 #endif
 
     //Start the gpio pins with pigpio
@@ -109,7 +109,8 @@ int main(int argc, char **argv)
     //Initialize Serial
     Serial serial("/dev/ttyS0", 115200);
 
-    cv::VideoCapture cap(-1);
+//    cv::VideoCapture cap(-1);
+    cv::VideoCapture cap("Walkers.mp4");
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;
@@ -148,10 +149,10 @@ int main(int argc, char **argv)
             centerX = int((person.x1 + person.x2))>>1;//find center x, bit shift by 1 for divide by 2
             centerY = int(person.y1+person.y2)>>1;
             cv::Point center(centerX,centerY);
-            cv::circle(frame,center,10,(0,0,255),-1); //(image,(x,y),radius,col,thickness)
-            handle_person(people, centerX, centerY);
+            cv::circle(frame,center,5,(0,0,255),-1); //(image,(x,y),radius,col,thickness)
+//            handle_person(people, centerX, centerY);
         }
-        num_people = handle_people(people);
+//        num_people = handle_people(people);
 
 
 //         //experimentally x seemed to go from 40 - 600

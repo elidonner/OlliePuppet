@@ -64,6 +64,8 @@
 		<Unit filename="TensorFlow/MobileNetV1.cpp" />
 		<Unit filename="TensorFlow/MobileNetV1.hpp" />
 		<Unit filename="main.cpp" />
+		<Unit filename="utils/person.cpp" />
+		<Unit filename="utils/person.hpp" />
 		<Unit filename="utils/serial.cpp" />
 		<Unit filename="utils/serial.hpp" />
 		<Unit filename="utils/servo.cpp" />
