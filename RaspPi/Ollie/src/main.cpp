@@ -1,14 +1,19 @@
+#include <stdio.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "utils/servo.hpp"
-#include "utils/serial.hpp"
-#include "utils/people.hpp"
-#include "interactions.hpp"
+#include "BYTETracker.h"
 #include "tfliteTrack.hpp"
+#include "interactions.hpp"
+#include "servo.hpp"
+#include "serial.hpp"
+#include "person.hpp"
+
 
 using namespace std;
 
+#ifndef DEBUG
 #define DEBUG
+#endif
 
 void servo_stuff()
 {
@@ -43,7 +48,7 @@ int main(int argc, char **argv)
 #ifdef DEBUG
     // fps stuff
     float f;
-    int FCNT = 0;
+    int Fcnt, i= 0;
     float FPS[16];
 
     // some timing
@@ -53,12 +58,17 @@ int main(int argc, char **argv)
         FPS[i] = 0.0; //
 #endif
 
+    //frame object
+    cv::Mat frame;
+
     //interactions object to handle ollies interactions and timers
     Audio audio;
     Interactions interactions(audio);
     vector<Person> people;
 
-    UltraPerson deepModel("./TensorFlow/detect.tflite", 300, 300, 4, 0.6);
+    //load deep learning model with tracking model
+    BYTETracker tracker(21, 30);
+    UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
 
     // Start the gpio pins with pigpio
     // Needs to be done before Servo or Serial can be used
@@ -71,10 +81,11 @@ int main(int argc, char **argv)
     // Initialize a servo
     Servo servo(4, 0, 1000, 2000, 1500);
     // Initialize Serial
-    Serial serial("/dev/ttyS0", 115200);
+//    Serial serial("/dev/ttyS0", 115200);
 
-    cv::VideoCapture cap(-1);
-    // cv::VideoCapture cap("Walkers.mp4");
+//    cv::VideoCapture cap(-1);
+//    cv::VideoCapture cap("Walkers.mp4");
+    cv::VideoCapture cap()
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;
@@ -100,16 +111,16 @@ int main(int argc, char **argv)
         deepModel.detect(frame, person_info);
         //update the people vector, and the interaction case we are in from the people found in the frame
         interactions.update_people(person_info, people, frame);
-        
+
         servo_stuff();
 
-        // Check for serial
-        if (serial.available())
-        {
-            serial.read();
-            //if(serial.read()) says audio is done playing
-            audio.audio_done();
-        }
+//        // Check for serial
+//        if (serial.available())
+//        {
+//            serial.read();
+//            //if(serial.read()) says audio is done playing
+//            audio.audio_done();
+//        }
 
 #ifdef DEBUG
         Tend = chrono::steady_clock::now();

@@ -1,5 +1,5 @@
-#ifndef MobileNetV1_hpp
-#define MobileNetV1_hpp
+#ifndef tfliteTrack_hpp
+#define tfliteTrack_hpp
 
 #pragma once
 
@@ -24,9 +24,9 @@ typedef struct PersonInfo
 {
     float x1;
     float y1;
-    float x2;
-    float y2;
-    float label;
+    float width;
+    float height;
+    int label;
 
 } PersonInfo;
 
@@ -34,12 +34,10 @@ class UltraPerson
 {
 public:
 
-    UltraPerson(const std::string &yolo_path, int input_width, int input_height, int num_thread_, float score_trheshold_);
+    UltraPerson(BYTETracker &_tracker, const std::string &yolo_path, int input_width, int input_height, int num_thread_, float score_trheshold_);
 
-    void detect(cv::Mat &img, std::vector<PersonInfo> &personList);
+    void detect(cv::Mat &src, std::vector<PersonInfo> &personList);
 
-public:
-    BYTETracker tracker(fps, 30);
 
 private:
     bool getFileContent(std::string fileName);
@@ -52,6 +50,7 @@ private:
     std::vector<std::string> Labels;
     std::unique_ptr<tflite::Interpreter> interpreter;
     std::unique_ptr<tflite::FlatBufferModel> model;
+    BYTETracker &track;
 };
 
-#endif /* MobileNetV1_hpp */
+#endif //tfliteTrack_hpp

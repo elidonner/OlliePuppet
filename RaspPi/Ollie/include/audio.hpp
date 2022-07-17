@@ -1,8 +1,10 @@
 #ifndef AUDIO_HPP_INCLUDED
 #define AUDIO_HPP_INCLUDED
 
-#include <iostream>
-#include "Serial.hpp"
+#include <vector>
+#include <random>
+#include "person.hpp"
+#include "serial.hpp"
 
 // interaction class object
 class Audio
@@ -10,7 +12,8 @@ class Audio
 public:
     Audio();
 
-    void handle(int current_case, int main_timer, bool valid_case, bool & first_time, std::vector<Person> & people)
+    void handle(int current_case, std::chrono::steady_clock::time_point main_timer, bool valid_case, bool & first_time, std::vector<Person> & people);
+    void audio_done();
 public:
     /**
      * @brief Pool is 32 bit int where each bit is a flag for if the audio file is in the pool
@@ -31,25 +34,25 @@ public:
      *
      *
      */
-    unsigned int pool;
-    unsigned int played_pool;
+    unsigned int pool, played_pool;
     bool first_special, audio_playing;
-
-    std::random_device rd; //random num from hardware
-    std::mt19937 gen(rd()); //seed the generator
 
     int wait_time;
 
-    chrono::steady_clock::time_point audio_timer;
-
 private:
     int rand_int(int min, int max);
-    void clear_audio(std::vector<Person> & people);
-    void determine_pool(int mode, int time, bool valid_case, bool & first_time);
+    void clear_audio_heard(std::vector<Person> & people);
+    void determine_pool(int mode, std::chrono::steady_clock::time_point main_timer, bool valid_case, bool & first_time, std::vector<Person> & people);
     int count_set_bits(unsigned int v);
+    int countTrailingZero(int x);
     unsigned int nthset(uint32_t x, int n);
     unsigned int pull_from_pool();
+    unsigned int bit_ones(int min, int max);
     void play_audio(std::vector<Person> & people, bool & first_time);
-}
+
+private:
+    std::mt19937 gen; //random number generator
+    std::chrono::steady_clock::time_point audio_timer;
+};
 
 #endif //AUDIO_HPP_INCLUDED

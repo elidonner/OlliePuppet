@@ -28,21 +28,25 @@
 #define INTERACTIONS_HPP_INCLUDED
 
 #include <iostream>
+#include "tfliteTrack.hpp"
 #include "audio.hpp"
+
+
+#define DEBUG
 
 // interaction class object
 class Interactions
 {
 public:
-    Interactions();
+    Interactions(Audio &_audio);
 
     void start_main_timer();
-    void update_people(Std::vector<PersonInfo> &person_info, Std::vector<Person> &people, cv::Mat &frame);
+    void update_people(std::vector<PersonInfo> &person_info, std::vector<Person> &people, cv::Mat &frame);
 
 public:
     bool valid_case, first_time;
     int current_case = 0;
-    chrono::steady_clock::time_point main_timer = 0;
+    std::chrono::steady_clock::time_point main_timer;
 
 private:
 
@@ -52,7 +56,7 @@ private:
 
 private:
     Audio & audio;
-    Std::vector<int> prev_round;
-}
+    std::vector<int> prev_round;
+};
 
 #endif //INTERACTIONS_HPP_INCLUDED

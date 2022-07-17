@@ -1,11 +1,12 @@
 #include "interactions.hpp"
-//store if we have a valid case
 
-Interactions::Interactions()
+Interactions::Interactions(Audio &_audio):audio(_audio)
 {
+    //initiate the main_timer
+    start_main_timer();
 }
 
-void Interactions::start_main_timer(Audio & _audio) : audio(_audio)
+void Interactions::start_main_timer()
 {
     main_timer = chrono::steady_clock::now();
 }
@@ -31,7 +32,7 @@ void Interactions::is_case_valid(int mode)
     chrono::steady_clock::time_point Tend;
 
     static int prev_mode = 0;
-    if (mode == prev_mod)
+    if (mode == prev_mode)
     {
         //update the end time
         Tend = chrono::steady_clock::now();
@@ -65,49 +66,50 @@ void Interactions::is_case_valid(int mode)
 void Interactions::find_case(int num_people)
 {
     switch(num_people)
-    case(0){
-        current_case = 0;
-        valid_case = false;
-        break;
-    }
-    case(1){
-        current_case = 1;
-        is_case_valid(1);
-    }
-    case(2){
-        current_case = 2;
-        is_case_valid(2);
-    }
-    default{
-        current_case = 3;
-        is_case_valid(3);
+    {
+        case 0:
+            current_case = 0;
+            valid_case = false;
+            first_time = false;
+            break;
+        case 1:
+            current_case = 1;
+            is_case_valid(1);
+            break;
+        case 2:
+            current_case = 2;
+            is_case_valid(2);
+            break;
+        default:
+            current_case = 3;
+            is_case_valid(3);
+            break;
     }
 
 }
 
-void Interactions::update_people(Std::vector<PersonInfo> &person_info, Std::vector<Person> &people, cv::Mat &frame)
+void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vector<Person> &people, cv::Mat &frame)
 {
     int centerX, centerY, i;
     vector<int> this_round;
 
     for (auto person : person_info)
     {
+#define DEBUG
 #ifdef DEBUG
-        //            cv::Point pt1(person.x1, person.y1);
-        //            cv::Point pt2(person.x2, person.y2);
-        //            cv::rectangle(frame, pt1, pt2, cv::Scalar(0, 255, 0), 2);
-        putText(frame, format("%d", person.label), Point(tlwh[0], tlwh[1] - 5),
+        cv::putText(frame, format("%d", person.label), Point(person.x1, person.y1 - 5),
                 0, 0.6, Scalar(0, 0, 255), 2, LINE_AA);
         // FIXME: check the scalar color input
-        rectangle(frame, Rect(tlwh[0], tlwh[1], tlwh[2], tlwh[3]), (0, 0, 255), 2);
+        cv::rectangle(frame, Rect(person.x1, person.y1, person.width, person.height), (0, 0, 255), 2);
 #endif
 
         // find center x and y
-        centerX = int((person.x1 + person.x2)) / 2;
+        centerX = static_cast<int>(person.x1 + person.width/2);
 
 #ifdef DEBUG
+        centerY = static_cast<int>(person.y1+person.height/2);
         cv::Point center(centerX, centerY);
-        cv::circle(frame, center, 5, (0, 0, 255), -1); //(image,(x,y),radius,col,thickness)
+        cv::circle(frame, center, 3, (0, 0, 255), -1); //(image,(x,y),radius,col,thickness)
 #endif
 
         //FIXME: MAY BE FASTER WAY TO DO THIS DEPENDING ON how data is stored in person_info
@@ -134,6 +136,8 @@ void Interactions::update_people(Std::vector<PersonInfo> &person_info, Std::vect
     {
         if (!in_vector(person.label, this_round))
         {
+            //add this persons audio back to the pool
+            audio.pool |= person.heard_audio;
             people.erase(people.begin() + i);
             continue;
         }
@@ -146,7 +150,7 @@ void Interactions::update_people(Std::vector<PersonInfo> &person_info, Std::vect
     }
     // reset the label
     prev_round = this_round;
-    find_case(people.size())
+    find_case(people.size());
     //play an audio file from the pool of files if it's been enough time since the last audio file was played
     audio.handle(current_case, main_timer, valid_case, first_time, people);
 }

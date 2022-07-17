@@ -3,7 +3,7 @@
 using namespace cv;
 using namespace std;
 
-UltraPerson::UltraPerson(const std::string &yolo_path, int input_width = 300, int input_height = 300, int num_thread_ = 4, float score_threshold_ = 0.5)
+UltraPerson::UltraPerson(BYTETracker &_tracker, const std::string &yolo_path, int input_width = 300, int input_height = 300, int num_thread_ = 4, float score_threshold_ = 0.5):track(_tracker)
 {
     width = input_width;
     height = input_height;
@@ -19,7 +19,7 @@ UltraPerson::UltraPerson(const std::string &yolo_path, int input_width = 300, in
     interpreter->AllocateTensors();
 
     //     Get the names
-    bool result = getFileContent("./TensorFlow/COCO_labels.txt");
+    bool result = getFileContent("COCO_labels.txt");
     if (!result)
     {
         cout << "loading labels failed";
@@ -48,7 +48,7 @@ bool UltraPerson::getFileContent(std::string fileName)
     return true;
 }
 
-int UltraPerson::detect(Mat &src, std::vector<PersonInfo> &personList)
+void UltraPerson::detect(Mat &src, std::vector<PersonInfo> &personList)
 {
     Mat image;
     int cam_width = src.cols;
@@ -107,13 +107,13 @@ int UltraPerson::detect(Mat &src, std::vector<PersonInfo> &personList)
             PersonInfo person;
             // FIXME: Does this effect it?
             //  Scalar s = track.get_color(output_stracks[i].track_id);
-            
+
 
             person.x1 = tlwh[0];
             person.y1 = tlwh[1];
-            person.x2 = tlwh[2];
-            person.xy = tlwh[3];
-            person.label = output_strack[i].track_id;
+            person.width = tlwh[2];
+            person.height = tlwh[3];
+            person.label = output_stracks[i].track_id;
 
             // create person info
             personList.push_back(person);
