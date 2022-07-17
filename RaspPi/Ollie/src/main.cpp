@@ -83,9 +83,9 @@ int main(int argc, char **argv)
     // Initialize Serial
 //    Serial serial("/dev/ttyS0", 115200);
 
-//    cv::VideoCapture cap(-1);
+    cv::VideoCapture cap(-1);
 //    cv::VideoCapture cap("Walkers.mp4");
-    cv::VideoCapture cap()
+//    cv::VideoCapture cap("FWM.mp4");
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;
