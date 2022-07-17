@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     vector<Person> people;
 
     //load deep learning model with tracking model
-    BYTETracker tracker(21, 30);
+    BYTETracker tracker(22, 30);
     UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
 
     // Start the gpio pins with pigpio
@@ -83,9 +83,8 @@ int main(int argc, char **argv)
     // Initialize Serial
 //    Serial serial("/dev/ttyS0", 115200);
 
-    cv::VideoCapture cap(-1);
-//    cv::VideoCapture cap("Walkers.mp4");
-//    cv::VideoCapture cap("FWM.mp4");
+//    cv::VideoCapture cap(-1);
+    cv::VideoCapture cap("FWM2.mp4");
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;

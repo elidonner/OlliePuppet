@@ -30,6 +30,7 @@
 #include <iostream>
 #include "tfliteTrack.hpp"
 #include "audio.hpp"
+#include "mode.hpp"
 
 
 #define DEBUG
@@ -57,6 +58,7 @@ private:
 private:
     Audio & audio;
     std::vector<int> prev_round;
+    std::vector<Mode> modes;
 };
 
 #endif //INTERACTIONS_HPP_INCLUDED

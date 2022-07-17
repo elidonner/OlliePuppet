@@ -4,6 +4,15 @@ Interactions::Interactions(Audio &_audio):audio(_audio)
 {
     //initiate the main_timer
     start_main_timer();
+
+    //add modes to mode list
+    Mode no_people;
+    Mode one_person;
+    Mode two_people;
+    Mode three_people;
+
+    modes.insert(modes.end(), {no_people, one_person, two_people, three_people});
+
 }
 
 void Interactions::start_main_timer()
@@ -27,39 +36,41 @@ bool Interactions::in_vector(int key, std::vector<int> v)
 
 void Interactions::is_case_valid(int mode)
 {
-    static chrono::steady_clock::time_point Tbegin = chrono::steady_clock::now();
-
-    chrono::steady_clock::time_point Tend;
-
-    static int prev_mode = 0;
-    if (mode == prev_mode)
+    for(int i = 0; i < modes.size(); i++)
     {
-        //update the end time
-        Tend = chrono::steady_clock::now();
-
-        float diff = chrono::duration_cast<chrono::seconds>(Tend - Tbegin).count();
-
-        //see if the time has been > 10 seconds
-        if (diff <= 10)
+        if(i == mode)
         {
-            valid_case = false;
+            modes.at(i).increment_cnt();
         }
         else
         {
-            //if it wasn't already a valid case, then we want the pool to pull from the special mode first
-            if(!valid_case)
-            {
-                //it is the first time of this case
-                first_time = true;
-                valid_case = true;
-            }
+            modes.at(i).decrement_cnt();
         }
     }
-    else {
+
+    //see which mode is the largest
+    current_case = 0;
+    for(int i = 1; i < modes.size(); i++)
+    {
+        if(modes.at(i).cnt > modes.at(current_case).cnt)
+        {
+            current_case = i;
+        }
+    }
+
+    if (modes.at(current_case).cnt <= 10)
+    {
         valid_case = false;
-        first_time = false;
-        //restart the timer
-        Tbegin = chrono::steady_clock::now();
+    }
+    else
+    {
+        //if it wasn't already a valid case, then we want the pool to pull from the special mode first
+        if(!valid_case)
+        {
+            //it is the first time of this case
+            first_time = true;
+            valid_case = true;
+        }
     }
 }
 
@@ -68,20 +79,15 @@ void Interactions::find_case(int num_people)
     switch(num_people)
     {
         case 0:
-            current_case = 0;
-            valid_case = false;
-            first_time = false;
+            is_case_valid(0);
             break;
         case 1:
-            current_case = 1;
             is_case_valid(1);
             break;
         case 2:
-            current_case = 2;
             is_case_valid(2);
             break;
         default:
-            current_case = 3;
             is_case_valid(3);
             break;
     }
@@ -151,6 +157,9 @@ void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vect
     // reset the label
     prev_round = this_round;
     find_case(people.size());
+
+//    std::cout<<"current case: "<<current_case<<"\t"<<"valid case: "<<valid_case<<std::endl;
+
     //play an audio file from the pool of files if it's been enough time since the last audio file was played
     audio.handle(current_case, main_timer, valid_case, first_time, people);
 }

@@ -1399,12 +1399,13 @@
 1658016987 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/STrack.cpp
 	"STrack.h"
 
-1658022643 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/audio.cpp
+1658065711 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/audio.cpp
 	"audio.hpp"
 
-1658022509 /home/pi/OlliePuppet/RaspPi/Ollie/include/audio.hpp
+1658068092 /home/pi/OlliePuppet/RaspPi/Ollie/include/audio.hpp
 	<vector>
 	<random>
+	<bitset>
 	"person.hpp"
 	"serial.hpp"
 
@@ -1686,15 +1687,16 @@
 	"tensorflow/lite/c/common.h"
 	"tensorflow/lite/string_type.h"
 
-1658028018 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/interactions.cpp
+1658064896 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/interactions.cpp
 	"interactions.hpp"
 
-1658025033 /home/pi/OlliePuppet/RaspPi/Ollie/include/interactions.hpp
+1658063801 /home/pi/OlliePuppet/RaspPi/Ollie/include/interactions.hpp
 	<iostream>
 	"tfliteTrack.hpp"
 	"audio.hpp"
+	"mode.hpp"
 
-1658030811 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/main.cpp
+1658064502 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/main.cpp
 	<stdio.h>
 	<iostream>
 	<opencv2/opencv.hpp>
@@ -1704,4 +1706,9 @@
 	"servo.hpp"
 	"serial.hpp"
 	"person.hpp"
+
+1658063543 /home/pi/OlliePuppet/RaspPi/Ollie/include/mode.hpp
+
+1658063607 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/mode.cpp
+	"mode.hpp"
 

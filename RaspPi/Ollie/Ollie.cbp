@@ -74,6 +74,7 @@
 		<Unit filename="include/interactions.hpp" />
 		<Unit filename="include/kalmanFilter.h" />
 		<Unit filename="include/lapjv.h" />
+		<Unit filename="include/mode.hpp" />
 		<Unit filename="include/person.hpp" />
 		<Unit filename="include/serial.hpp" />
 		<Unit filename="include/servo.hpp" />
@@ -85,6 +86,7 @@
 		<Unit filename="src/kalmanFilter.cpp" />
 		<Unit filename="src/lapjv.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/mode.cpp" />
 		<Unit filename="src/person.cpp" />
 		<Unit filename="src/serial.cpp" />
 		<Unit filename="src/servo.cpp" />

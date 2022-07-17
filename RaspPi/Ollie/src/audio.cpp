@@ -8,7 +8,8 @@
 
 Audio::Audio(): gen( (std::random_device())() ) //seed the random number generator
 {
-    wait_time = rand_int(8,30);
+    wait_time = 1;
+    std::cout<<"wait time: "<<wait_time<<std::endl;
 
     // set played_pool to all zeros
     played_pool = 0;
@@ -32,36 +33,22 @@ void Audio::clear_audio_heard(std::vector<Person> & people)
     {
         person.heard_audio = 0;
     }
+    played_pool = 0;
 
 }
 
-unsigned int Audio::bit_ones(int min, int max)
+unsigned int Audio::bit_ones(int n, int l, int r)
 {
+    //calculate number range having set bits in the range from l to r and all other bits 0
+    int range = (((1 << (l - 1)) - 1) ^ ((1 << (r)) - 1));
 
+    return (n | range);
 }
 
 void Audio::determine_pool(int mode, std::chrono::steady_clock::time_point main_timer, bool valid_case, bool & first_time, std::vector<Person> & people)
 {
     int time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - main_timer).count();
     pool = 0;
-    // if it is a valid case, pull the given audio files
-    if (valid_case)
-    {
-        switch (mode){
-            case 1:
-                //files 19-26
-                pool |= bit_ones(19,26);
-                break;
-            case 2:
-                //files 26-28
-                pool |= bit_ones(26,28);
-                break;
-            case 3:
-                //files 29-31
-                pool |= bit_ones(29,31);
-                break;
-        }
-    }
     //if we have said one of the group sayings, go ahead and add general sayings to the audio pool
     if(!first_time)
     {
@@ -73,16 +60,42 @@ void Audio::determine_pool(int mode, std::chrono::steady_clock::time_point main_
         else if (time < 10)
         {
             //in the 0-10 sec
-            pool |= bit_ones(0,5);
+            pool |= bit_ones(0, 1, 5);
         }
         else if(time < 120){
             //in the 10-2 min
-            pool |= bit_ones(6,14);
+            pool |= bit_ones(0,6, 14);
         }
         else
         {
             //> than 2 min
-            pool |= bit_ones(6,17);
+            pool |= bit_ones(0,6, 17);
+        }
+    }
+
+    // if it is a valid case, pull the given audio files
+    if (valid_case)
+    {
+        switch (mode){
+            case 1:
+                //files 19-26
+                pool |= bit_ones(0, 19, 26);
+                break;
+            case 2:
+                //files 26-28
+                pool |= bit_ones(0, 26, 28);
+                break;
+            case 3:
+                //files 29-31
+                pool |= bit_ones(0, 29, 31);
+                break;
+        }
+    }
+    else
+    {
+        if(pool == 0)
+        {
+            return;
         }
     }
 
@@ -114,19 +127,12 @@ int Audio::countTrailingZero(int x)
 
 int Audio::count_set_bits(unsigned int v)
 {
-//    unsigned int c; // c accumulates the total bits set in v
-//    for (c = 0; v; c++)
-//    {
-//    v &= v - 1; // clear the least significant bit set
-//    }
-//    return c;
-//
-
-    v = v - ((v >> 1) & 0x55555555);
-    v = (v & 0x33333333) + ((v >> 2) & 0x33333333);
-    v = v + (v >> 8);
-    v = v + (v >> 16);
-    return v & 0x0000003F;
+    unsigned int c; // c accumulates the total bits set in v
+    for (c = 0; v; c++)
+    {
+    v &= v - 1; // clear the least significant bit set
+    }
+    return c;
 }
 
 unsigned int Audio::nthset(uint32_t x, int n) {
@@ -149,11 +155,10 @@ unsigned int Audio::pull_from_pool()
     //get number of bits set to 1
     int n, rand_num;
     n = count_set_bits(pool);
+    std::cout<<"set bits "<<n<<std::endl;
 
     //select random number in range of bits set to 1
-    std::uniform_int_distribution<int> audio_time(1,n);
-
-    rand_num = audio_time(gen);
+    rand_num = rand_int(1,n);
 
     //get the nth bit set to 1
     return (nthset(pool, rand_num));
@@ -182,6 +187,7 @@ void Audio::play_audio(std::vector<Person> & people, bool & first_time)
     // serial.write(to_send);
     std::cout<<"file to play: "<<to_send<<std::endl;
 
+    //FIXME:
     audio_playing = true;
 }
 
@@ -195,6 +201,7 @@ void Audio::audio_done()
 
 void Audio::handle(int current_case, std::chrono::steady_clock::time_point main_timer, bool valid_case, bool & first_time, std::vector<Person> & people)
 {
+//    std::cout<<"current_case: "<<current_case<<std::endl;
     //if case is 0 people, do nothing
     if(current_case == 0 || audio_playing)
     {
@@ -202,10 +209,15 @@ void Audio::handle(int current_case, std::chrono::steady_clock::time_point main_
     }
 
     //check if time since last audio file is ready to play
-    float diff = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - audio_timer).count();
+    int diff = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - audio_timer).count();
+//    std::cout<<"diff: "<<diff<<std::endl;
     if (diff >= wait_time)
     {
         determine_pool(current_case, main_timer, valid_case, first_time, people);
-        play_audio(people, first_time);
+        std::cout<<"pool:  "<< std::bitset<32>(pool)<<std::endl;
+        if(pool!=0)
+        {
+            play_audio(people, first_time);
+        }
     }
 }

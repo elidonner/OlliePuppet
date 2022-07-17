@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <random>
+#include <bitset>
 #include "person.hpp"
 #include "serial.hpp"
 
@@ -35,7 +36,7 @@ public:
      *
      */
     unsigned int pool, played_pool;
-    bool first_special, audio_playing;
+    bool first_special, audio_playing = false;
 
     int wait_time;
 
@@ -47,7 +48,7 @@ private:
     int countTrailingZero(int x);
     unsigned int nthset(uint32_t x, int n);
     unsigned int pull_from_pool();
-    unsigned int bit_ones(int min, int max);
+    unsigned int bit_ones(int n, int l, int r);
     void play_audio(std::vector<Person> & people, bool & first_time);
 
 private:
