@@ -1,6 +1,6 @@
 #include "interactions.hpp"
 
-Interactions::Interactions(Audio &_audio):audio(_audio)
+Interactions::Interactions(Audio &_audio, Servo &_servo):audio(_audio), servo(_servo)
 {
     //initiate the main_timer
     start_main_timer();
@@ -94,6 +94,33 @@ void Interactions::find_case(int num_people)
 
 }
 
+void Interactions::track_w_servo(Person person)
+{
+    // experimentally x seemed to go from 40 - 600
+    // so mapping them to an angle of 30 -> 200 degrees:
+    int angle = int(float((560 - person.centerX)) * (170.0 / 560.0));
+    servo.moveToAngle(angle);
+//    std::cout<<"centerX: "<< (person.centerX) <<"\tAngle: "<<angle<<std::endl;
+}
+
+void Interactions::update_person(int label, std::vector<Person> &people, int coord)
+{
+    //uses lambda function to search for first instance where the person label is equal to the given person label
+//    auto it = std::find_if(people.begin(), people.end(), [& label](const Person& person) {return person.label == label;});
+//
+//    //find the index using ptrdiff_t type
+//    long unsigned int index = std::distance(people.begin(), it);
+//
+//    //updates the person x coordinate given they are there
+//    if (index >= 0)
+//    {
+//        people.at(index).update_x(coord);
+//    }
+//    else{}
+
+}
+
+
 void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vector<Person> &people, cv::Mat &frame)
 {
     int centerX, centerY, i;
@@ -122,44 +149,76 @@ void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vect
         // Handle if it's a new person
         if (!in_vector(person.label, prev_round))
         {
+            Person new_person(person.label, centerX);
             //if this is the first person into the frame, start a timer
             if(people.size()==0)
             {
                 start_main_timer();
+                tracking_person = true;
             }
-            // Element not found, create person
-            Person new_person(person.label);
             people.push_back(new_person);
+        }
+        else
+        {
+            //upadte the persons x coordinate
+             update_person(person.label, people, centerX);
         }
         // set this label as found in this round
         this_round.push_back(person.label);
     }
 
-    // check if elements from prev_round exist in this round, otherwise delete the person
-    //TODO: Make sure this works
-    i = 0;
-    for (Person person : people)
+
+
+
+    //if we are tracking a person
+    if(tracking_person)
     {
-        if (!in_vector(person.label, this_round))
+        //check if person_tracked is in this round, if not, set a new person to track
+        if(!in_vector(people.at(0).label, this_round))
         {
-            //add this persons audio back to the pool
-            audio.pool |= person.heard_audio;
-            people.erase(people.begin() + i);
-            continue;
+            tracking_person = false;
+            //delete the person we were tracking
+            audio.pool |= people.at(0).heard_audio;
+            people.erase(people.begin());
+            i = 0;
         }
-        //TODO: Implement funny clip
-        // else
-        // {
-        //     //see if person there for long time for funny clip
-        // }
-        i++;
+        else
+        {
+            i = 1;
+        }
+        //now update the rest of the people
+        for (Person person : people)
+        {
+            if (!in_vector(person.label, this_round))
+            {
+                //add this persons audio back to the pool
+                audio.pool |= person.heard_audio;
+                people.erase(people.begin() + i);
+                continue;
+            }
+            else
+            {
+                tracking_person = true;
+            }
+            //TODO: Implement funny clip
+            // else
+            // {
+            //     //see if person there for long time for funny clip
+            // }
+            i++;
+        }
     }
+
+
     // reset the label
     prev_round = this_round;
+    //person to track
     find_case(people.size());
 
-//    std::cout<<"current case: "<<current_case<<"\t"<<"valid case: "<<valid_case<<std::endl;
+//    std::cout<<"tracking_person : "<<tracking_person<<std::end;
+//    std::cout<<"current case: "<<tracking_person<<"\t"<<"valid case: "<<valid_case<<std::endl;
 
     //play an audio file from the pool of files if it's been enough time since the last audio file was played
+
     audio.handle(current_case, main_timer, valid_case, first_time, people);
 }

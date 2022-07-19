@@ -11,7 +11,7 @@
 class Audio
 {
 public:
-    Audio();
+    Audio(Serial &_serial);
 
     void handle(int current_case, std::chrono::steady_clock::time_point main_timer, bool valid_case, bool & first_time, std::vector<Person> & people);
     void audio_done();
@@ -54,6 +54,7 @@ private:
 private:
     std::mt19937 gen; //random number generator
     std::chrono::steady_clock::time_point audio_timer;
+    Serial & ser;
 };
 
 #endif //AUDIO_HPP_INCLUDED

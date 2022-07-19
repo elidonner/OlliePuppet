@@ -20,7 +20,7 @@ public:
     /**
     * check if serial port is available
     */
-    bool available();
+    int available();
 
     /**
     * write given msg

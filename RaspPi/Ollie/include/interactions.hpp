@@ -30,6 +30,7 @@
 #include <iostream>
 #include "tfliteTrack.hpp"
 #include "audio.hpp"
+#include "servo.hpp"
 #include "mode.hpp"
 
 
@@ -39,10 +40,11 @@
 class Interactions
 {
 public:
-    Interactions(Audio &_audio);
+    Interactions(Audio &_audio, Servo &_servo);
 
     void start_main_timer();
     void update_people(std::vector<PersonInfo> &person_info, std::vector<Person> &people, cv::Mat &frame);
+    void track_w_servo(Person person);
 
 public:
     bool valid_case, first_time;
@@ -54,9 +56,12 @@ private:
     bool in_vector(int key, std::vector<int> v);
     void is_case_valid(int mode);
     void find_case(int num_people);
+    void update_person(int label, std::vector<Person> &people, int coord);
 
 private:
     Audio & audio;
+    Servo & servo;
+    bool tracking_person = false;
     std::vector<int> prev_round;
     std::vector<Mode> modes;
 };

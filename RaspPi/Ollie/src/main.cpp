@@ -15,32 +15,6 @@ using namespace std;
 #define DEBUG
 #endif
 
-void servo_stuff()
-{
-    // // experimentally x seemed to go from 40 - 600
-    // // so mapping them to an angle of 30 -> 200 degrees:
-    // if (j > 1)
-    // {
-    //     face_there--;
-    //     if (face_there < 0)
-    //     {
-    //         face_there = 0;
-    //     }
-    // }
-    // else
-    // {
-    //     face_there++;
-    //     if (face_there > 100)
-    //     {
-    //         angle = int(float((560 - centerX)) * (170.0 / 560.0));
-    //         servo.moveToAngle(angle);
-    //         if (face_there > 200)
-    //         {
-    //             face_there = 200;
-    //         }
-    //     }
-    // }
-}
 
 int main(int argc, char **argv)
 {
@@ -61,15 +35,6 @@ int main(int argc, char **argv)
     //frame object
     cv::Mat frame;
 
-    //interactions object to handle ollies interactions and timers
-    Audio audio;
-    Interactions interactions(audio);
-    vector<Person> people;
-
-    //load deep learning model with tracking model
-    BYTETracker tracker(22, 30);
-    UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
-
     // Start the gpio pins with pigpio
     // Needs to be done before Servo or Serial can be used
     if (gpioInitialise() < 0)
@@ -81,8 +46,19 @@ int main(int argc, char **argv)
     // Initialize a servo
     Servo servo(4, 0, 1000, 2000, 1500);
     // Initialize Serial
-//    Serial serial("/dev/ttyS0", 115200);
+//    Serial ser("/dev/ttyS0", 115200); //GPIO Serial
+    Serial ser("/dev/ttyACM0", 115200); //USB Serial with Arduino Mega
+    fflush(stdout);
+    //interactions object to handle ollies interactions and timers
+    Audio audio(ser);
+    vector<Person> people;
+    Interactions interactions(audio, servo);
 
+
+    //load deep learning model with tracking model
+    BYTETracker tracker(22, 30);
+    UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
+//
 //    cv::VideoCapture cap(-1);
     cv::VideoCapture cap("FWM2.mp4");
     if (!cap.isOpened())
@@ -110,16 +86,28 @@ int main(int argc, char **argv)
         deepModel.detect(frame, person_info);
         //update the people vector, and the interaction case we are in from the people found in the frame
         interactions.update_people(person_info, people, frame);
+        std::cout<<people.size()<<std::endl;
+        if(people.size()>0)
+        {
+            interactions.track_w_servo(people.at(0));
+        }
 
-        servo_stuff();
 
-//        // Check for serial
-//        if (serial.available())
+        // Check for serial to see if audio is done playing
+//        if(audio.audio_playing)
 //        {
-//            serial.read();
-//            //if(serial.read()) says audio is done playing
-//            audio.audio_done();
+//            if (ser.available()>1)
+//            {
+//                std::cout<<"serial available"<<std::endl;
+//                if(ser.read())
+//                {
+//                    //if(serial.read()) says audio is done playing
+//                    audio.audio_done();
+//                }
+//
+//            }
 //        }
+
 
 #ifdef DEBUG
         Tend = chrono::steady_clock::now();

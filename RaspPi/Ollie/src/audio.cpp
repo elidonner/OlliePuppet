@@ -6,7 +6,7 @@
  */
 #include "audio.hpp"
 
-Audio::Audio(): gen( (std::random_device())() ) //seed the random number generator
+Audio::Audio(Serial &_serial): gen( (std::random_device())() ), ser(_serial) //seed the random number generator
 {
     wait_time = 1;
     std::cout<<"wait time: "<<wait_time<<std::endl;
@@ -182,19 +182,23 @@ void Audio::play_audio(std::vector<Person> & people, bool & first_time)
     }
 
     //play the audio file
-    int to_send = countTrailingZero(to_play)+1;
+    int int_to_send = countTrailingZero(to_play);
 
-    // serial.write(to_send);
+    std::string to_send = std::to_string(int_to_send);
+
+    audio_playing = true;
+
+    ser.write((char*)to_send.c_str());
+    fflush(stdout);
     std::cout<<"file to play: "<<to_send<<std::endl;
 
-    //FIXME:
-    audio_playing = true;
 }
 
 void Audio::audio_done()
 {
     //reset the wait_time flag
     wait_time = rand_int(8, 30);
+    std::cout<<"wait_time: "<<wait_time<<std::endl;
     audio_playing = false;
     audio_timer = std::chrono::steady_clock::now();
 }

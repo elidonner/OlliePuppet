@@ -13,7 +13,7 @@ Serial::Serial(char *serialName, int baudRate)
     }
 }
 
-bool Serial::available()
+int Serial::available()
 {
     return serDataAvailable(serial_port);
 }
@@ -29,6 +29,7 @@ void Serial::showNewData()
     {
         printf("%c", receivedBytes[n]);
     }
+    printf("\n");
     fflush(stdout);
 }
 
@@ -62,8 +63,17 @@ int Serial::read()
                 receivedBytes[ndx] = '\0'; // terminate the string
                 recvInProgress = false;
                 numReceived = ndx; // save the number for use when printing
-                showNewData();
-                return 1;
+//                showNewData();
+                if(receivedBytes[0]=='1')
+                {
+                    return 1;
+                }
+                else if(receivedBytes[0]=='0')
+                {
+                    showNewData();
+                }
+                return 0;
+
             }
         }
 
