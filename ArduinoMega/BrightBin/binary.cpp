@@ -20,6 +20,10 @@ void Binary::setup()
     pinMode(status_pin, OUTPUT);
     clear_pins();
     pinMode(input_pin, INPUT);
+    //cycle the bright sign in case
+    digitalWrite(status_pin, HIGH);
+    delay(100);
+    digitalWrite(status_pin, LOW);
 }
 
 void Binary::write(int num)

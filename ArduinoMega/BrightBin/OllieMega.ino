@@ -40,7 +40,7 @@ void loop()
     // Serial.println("file_done");
 
     Serial.println("starting playback");
-    for(int i = 8; i<42; i++){
+    for(int i = 0; i<42; i++){
       Serial.print("Playing: ");
       Serial.println(i);
       binary.write(i);

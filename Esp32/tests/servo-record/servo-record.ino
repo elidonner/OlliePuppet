@@ -27,7 +27,7 @@
  */
 // ONLY HAVE ONE OF BELOW UNCOMMENTED, OR BOTH COMMENTED FOR PLAY MODE
 //  #define RECORD
-#define CALIBRATE
+// #define CALIBRATE
 
 /**
  * Constants
@@ -40,10 +40,10 @@
 /**
  * Global Objects
  */
-espServo leftEarServo(25, 0, 1.33, 2.0);
-espServo rightEarServo(26, 2, 1.33, 2.0);
-espServo leftNeckServo(33, 6, 1.0, 2.3);
-espServo rightNeckServo(32, 4, 1.0, 2.3);
+// espServo leftEarServo(25, 0, 1.33, 2.0);
+// espServo rightEarServo(26, 2, 1.33, 2.0);
+espServo leftNeckServo(33, 4, 1.4, 1.6);
+espServo rightNeckServo(32, 6, 1.4, 1.6);
 // espServo mouthServo(25, 0, 1.11, 1.40)
 
 #ifdef RECORD
@@ -63,35 +63,33 @@ void notify()
   int rightShoulder = (Ps3.data.analog.button.r1);    // right shoulder button
 
   // Read ps3 stick and append to data string
-  int leftNeck = map(leftNeckThrottle, 128, -128, 0, 100);
-  int rightNeck = map(rightNeckThrottle, -128, 128, 0, 100);
-  int leftEar = map(leftShoulder, -128, 128, 0, 100);
-  int rightEar = map(rightShoulder, -128, 128, 0, 100);
+  int leftNeck = map(leftNeckThrottle, -128, 128, 0, 100);
+  int rightNeck = map(rightNeckThrottle, 128, -128, 0, 100);
+  int leftEar = map(leftShoulder, 0, 255, 0, 100);
+  int rightEar = map(rightShoulder, 0, 255, 0, 100);
 
 #ifdef CALIBRATE
-  leftNeck = ((float)leftNeck / 50.0) + 0.25;
-  rightNeck = ((float)rightNeck / 50.0) + 0.25;
-  leftEar = ((float)leftEar / 50.0) + 0.25;
-  rightEar = ((float)rightEar / 50.0) + 0.25;
+  float leftFloatNeck = ((float)leftNeck / 50.0) + 0.5;
+  float rightFloatNeck = ((float)rightNeck / 50.0) + 0.5;
+
   Serial.print("LeftNeck: ");
-  Serial.print(leftNeck);
+  Serial.print(leftFloatNeck);
   Serial.print("\tRightNeck: ");
-  Serial.print(rightNeck);
-  Serial.print("\LeftEar: ");
-  Serial.print(leftEar);
-  Serial.print("\RightEar: ");
-  Serial.println(rightEar);
+  Serial.print(rightFloatNeck);
+
+  // right: 1.1 , 1.5 , 1.9
+  // left  1.9, 1.5, 1.1
+
   // Write to the servo
   // Delay to allow servo to settle in position
-  leftNeckServo.sendPulse(leftNeck);
-  rightNeckServo.sendPulse(rightNeck);
-  leftEarServo.sendPulse(rightNeck);
-  rightEarServo.sendPulse(rightNeck);
+  leftNeckServo.sendPulse(leftFloatNeck);
+  rightNeckServo.sendPulse(rightFloatNeck);
+
 #else
   leftNeckServo.sendServo(leftNeck);
   rightNeckServo.sendServo(rightNeck);
-  leftEarServo.sendServo(rightNeck);
-  rightEarServo.sendServo(rightNeck);
+  // leftEarServo.sendServo(leftEar);
+  // rightEarServo.sendServo(rightEar);
 #endif // CALIBRATE
   delay(15);
 

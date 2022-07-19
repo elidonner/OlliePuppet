@@ -81,8 +81,8 @@ void loop() {
     // samples range from 50 to 2000
     if (smoothed > 250.0) // noise threshold
     {
-      int servo_value = constrain((int)smoothed, 250, 10000);
-      servo_value = map(servo_value, 250, 10000, 0, 100);
+      int servo_value = constrain((int)smoothed, 250, 7000);
+      servo_value = map(servo_value, 250, 7000, 0, 100);
       Serial.printf("servo_value: %d \n", servo_value);
       mouth.sendServo(servo_value);
       // sendServo(constrain(CLOSED + ((smoothed - 2500.0) / 20000.0), CLOSED, OPEN)); // send 1.0 to 2.0 ms

@@ -472,7 +472,7 @@
         }
       },
       "wssDeviceSpec": {},
-      "lastModifiedTime": "2022-07-18T21:53:18.884Z"
+      "lastModifiedTime": "2022-07-19T11:22:18.720Z"
     },
     "zones": {
       "zonesById": {
@@ -2991,6 +2991,31 @@
             "compareValue2": null
           },
           "conditionalAction": "None"
+        },
+        "78fe8387-50f2-48da-b3df-3ff8bed14e16": {
+          "id": "78fe8387-50f2-48da-b3df-3ff8bed14e16",
+          "name": "to_play",
+          "eventId": "a2fbf800-339f-400a-9f2b-ff11c8cc6bdb",
+          "targetMediaStateId": "f0487a10-d184-4b1f-82c1-047367701c7c",
+          "type": "No effect",
+          "duration": 0,
+          "condition": {
+            "userVariableName": "to_play",
+            "userVariableId": "9cf83faa-bd50-4ecb-aa05-d0c11b8a4f51",
+            "compareOperator": "GT",
+            "compareValue1": {
+              "params": [
+                {
+                  "type": "Text",
+                  "value": "41"
+                }
+              ]
+            },
+            "compareValue2": {
+              "params": []
+            }
+          },
+          "conditionalAction": "None"
         }
       },
       "sequencesByEventId": {
@@ -3038,7 +3063,8 @@
             "2a116894-bbd6-46ef-b6f5-18f8c3354188",
             "e3c79871-428b-41d4-9344-4f7c6b1a5503",
             "362aeac1-ef0d-4742-b9f6-871d5af7d36b",
-            "d1400c6b-6608-4161-8233-76a61bceb59c"
+            "d1400c6b-6608-4161-8233-76a61bceb59c",
+            "78fe8387-50f2-48da-b3df-3ff8bed14e16"
           ]
         }
       }
@@ -3902,6 +3928,19 @@
             }
           ],
           "sequenceId": "a4148b3c-bbec-4e6f-9df7-b27812128101"
+        },
+        "07ba0f13-2a07-470e-934d-192215b78bc9": {
+          "id": "07ba0f13-2a07-470e-934d-192215b78bc9",
+          "name": "Reset Variable",
+          "operations": [
+            {
+              "type": "resetVariable",
+              "data": {
+                "userVariableId": "9cf83faa-bd50-4ecb-aa05-d0c11b8a4f51"
+              }
+            }
+          ],
+          "sequenceId": "e4a89ac2-5821-4e08-869a-4e9d5f662629"
         }
       },
       "sequencesById": {
@@ -4025,6 +4064,14 @@
             "03986ac3-6c01-4cf9-a8d9-609033a7baf9",
             "7f240f99-7053-4fe7-9047-23727ebfcc38",
             "d4e7915f-0192-4a74-a8d1-a9f3219dedb2"
+          ]
+        },
+        "e4a89ac2-5821-4e08-869a-4e9d5f662629": {
+          "id": "e4a89ac2-5821-4e08-869a-4e9d5f662629",
+          "type": "Transition",
+          "parentId": "78fe8387-50f2-48da-b3df-3ff8bed14e16",
+          "sequence": [
+            "07ba0f13-2a07-470e-934d-192215b78bc9"
           ]
         }
       }
@@ -4681,8 +4728,8 @@
     },
     "selectionEntities": {},
     "prevSelectionEntities": {
-      "0c65d495-304f-4a56-ab41-0b8871978266": {
-        "id": "0c65d495-304f-4a56-ab41-0b8871978266",
+      "a2fbf800-339f-400a-9f2b-ff11c8cc6bdb": {
+        "id": "a2fbf800-339f-400a-9f2b-ff11c8cc6bdb",
         "type": "Event",
         "selectableType": "TRANSITION",
         "selectableData": null
