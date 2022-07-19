@@ -5,7 +5,7 @@
  * Then automates a servo to make puppet seem like it is talking
  */
 #include <driver/i2s.h>
-#include "espServo.h"
+#include <espServo.h>
 
 #define I2S_SAMPLE_RATE 40000
 #define ADC_INPUT ADC1_CHANNEL_4 //pin 32
