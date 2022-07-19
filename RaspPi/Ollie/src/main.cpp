@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     // gpioSetSignalFunc(SIGINT, stop);
 
     // Initialize a servo
-    Servo servo(4, 0, 1000, 2000, 1500);
+    Servo servo(17, 0, 1000, 2000, 1500);
     // Initialize Serial
 //    Serial ser("/dev/ttyS0", 115200); //GPIO Serial
     Serial ser("/dev/ttyACM0", 115200); //USB Serial with Arduino Mega
@@ -87,7 +87,6 @@ int main(int argc, char **argv)
         deepModel.detect(frame, person_info);
         //update the people vector, and the interaction case we are in from the people found in the frame
         interactions.update_people(person_info, people, frame);
-        std::cout<<people.size()<<std::endl;
         if(people.size()>0)
         {
             interactions.track_w_servo(people.at(0));
@@ -95,19 +94,19 @@ int main(int argc, char **argv)
 
 
         // Check for serial to see if audio is done playing
-//        if(audio.audio_playing)
-//        {
-//            if (ser.available()>1)
-//            {
+        if(audio.audio_playing)
+        {
+            if (ser.available()>1)
+            {
 //                std::cout<<"serial available"<<std::endl;
-//                if(ser.read())
-//                {
-//                    //if(serial.read()) says audio is done playing
-//                    audio.audio_done();
-//                }
-//
-//            }
-//        }
+                if(ser.read())
+                {
+                    //if(serial.read()) says audio is done playing
+                    audio.audio_done();
+                }
+
+            }
+        }
 
 
 #ifdef DEBUG

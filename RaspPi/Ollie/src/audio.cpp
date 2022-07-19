@@ -9,7 +9,7 @@
 Audio::Audio(Serial &_serial): gen( (std::random_device())() ), ser(_serial) //seed the random number generator
 {
     wait_time = 1;
-    std::cout<<"wait time: "<<wait_time<<std::endl;
+//    std::cout<<"wait time: "<<wait_time<<std::endl;
 
     // set played_pool to all zeros
     played_pool = 0;
@@ -155,7 +155,7 @@ unsigned int Audio::pull_from_pool()
     //get number of bits set to 1
     int n, rand_num;
     n = count_set_bits(pool);
-    std::cout<<"set bits "<<n<<std::endl;
+//    std::cout<<"set bits "<<n<<std::endl;
 
     //select random number in range of bits set to 1
     rand_num = rand_int(1,n);
@@ -184,13 +184,13 @@ void Audio::play_audio(std::vector<Person> & people, bool & first_time)
     //play the audio file
     int int_to_send = countTrailingZero(to_play);
 
-    std::string to_send = std::to_string(int_to_send);
+    std::string to_send = std::to_string(int_to_send)+"\n";
 
     audio_playing = true;
 
     ser.write((char*)to_send.c_str());
     fflush(stdout);
-    std::cout<<"file to play: "<<to_send<<std::endl;
+//    std::cout<<"file to play: "<<to_send<<std::endl;
 
 }
 
@@ -198,7 +198,7 @@ void Audio::audio_done()
 {
     //reset the wait_time flag
     wait_time = rand_int(8, 30);
-    std::cout<<"wait_time: "<<wait_time<<std::endl;
+//    std::cout<<"wait_time: "<<wait_time<<std::endl;
     audio_playing = false;
     audio_timer = std::chrono::steady_clock::now();
 }
@@ -218,7 +218,7 @@ void Audio::handle(int current_case, std::chrono::steady_clock::time_point main_
     if (diff >= wait_time)
     {
         determine_pool(current_case, main_timer, valid_case, first_time, people);
-        std::cout<<"pool:  "<< std::bitset<32>(pool)<<std::endl;
+//        std::cout<<"pool:  "<< std::bitset<32>(pool)<<std::endl;
         if(pool!=0)
         {
             play_audio(people, first_time);
