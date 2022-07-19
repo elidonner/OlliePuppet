@@ -60,7 +60,8 @@ int main(int argc, char **argv)
     UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
 //
 //    cv::VideoCapture cap(-1);
-    cv::VideoCapture cap("FWM2.mp4");
+//    cv::VideoCapture cap("FWM2.mp4");
+    cv::VideoCapture cap("FWM_3_People.mp4");
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;

@@ -106,17 +106,17 @@ void Interactions::track_w_servo(Person person)
 void Interactions::update_person(int label, std::vector<Person> &people, int coord)
 {
     //uses lambda function to search for first instance where the person label is equal to the given person label
-//    auto it = std::find_if(people.begin(), people.end(), [& label](const Person& person) {return person.label == label;});
-//
-//    //find the index using ptrdiff_t type
-//    long unsigned int index = std::distance(people.begin(), it);
-//
-//    //updates the person x coordinate given they are there
-//    if (index >= 0)
-//    {
-//        people.at(index).update_x(coord);
-//    }
-//    else{}
+    auto it = std::find_if(people.begin(), people.end(), [& label](const Person& person) {return person.label == label;});
+
+    //find the index using ptrdiff_t type
+    long unsigned int index = std::distance(people.begin(), it);
+
+    //updates the person x coordinate given someone is there
+    if (index < people.size())
+    {
+        people.at(index).update_x(coord);
+    }
+    else{}
 
 }
 
