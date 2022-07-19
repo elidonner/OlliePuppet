@@ -38,11 +38,11 @@
 /**
  * Global Objects
  */
-// espServo leftEarServo(25, 0, 1.33, 2.0);
-// espServo rightEarServo(26, 2, 1.33, 2.0);
+espServo leftEarServo(25, 0, 1.33, 2.0);
+espServo rightEarServo(26, 2, 1.33, 2.0);
 espServo rightNeck(32, 4, 1.0, 2.3);
 espServo leftNeck(33, 6, 1.0, 2.3);
-// espServo mouthServo(25, 0, 1.33, 1.80)
+// espServo mouthServo(25, 0, 1.11, 1.40)
 
 SPIClass spi = SPIClass(VSPI);
 

@@ -1,7 +1,7 @@
 {
     "configuration": "PartitionScheme=default,UploadSpeed=921600,DebugLevel=none",
     "board": "esp32:esp32:pico32",
-    "port": "/dev/tty.usbserial-143130",
-    "sketch": "servo-record/servo-record.ino",
+    "port": "/dev/tty.usbserial-14330",
+    "sketch": "talk/talk.ino",
     "output": "../ArduinoOutput"
 }

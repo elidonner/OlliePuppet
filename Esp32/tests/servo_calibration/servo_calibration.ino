@@ -3,7 +3,7 @@ float servo_pulse = 1.0;
 
 
 /**** SERVOSTUFF *****/
-#define SERVOPIN 33
+#define SERVOPIN 25
 // 40KHz > freq*resolution > 40MHz
 #define LEDC_RES_BITS 12        // cannot be higher than 14 bits
 #define LEDC_RES ((1<<LEDC_RES_BITS)-1)

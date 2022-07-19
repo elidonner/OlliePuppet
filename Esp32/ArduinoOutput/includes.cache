@@ -10,87 +10,12 @@
     "Includepath": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/variants/pico32"
   },
   {
-    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/servo-record.ino.cpp",
-    "Include": "Ps3Controller.h",
-    "Includepath": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src"
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/servo-record.ino.cpp",
-    "Include": "SPI.h",
-    "Includepath": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SPI/src"
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/servo-record.ino.cpp",
-    "Include": "SD.h",
-    "Includepath": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SD/src"
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/servo-record.ino.cpp",
-    "Include": "FS.h",
-    "Includepath": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/FS/src"
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/servo-record.ino.cpp",
+    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/talk.ino.cpp",
     "Include": "",
     "Includepath": null
   },
   {
     "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/ArduinoOutput/sketch/espServo.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src/Ps3Controller.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src/ps3.c",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src/ps3_l2cap.c",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src/ps3_parser.c",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Documents/Arduino/libraries/PS3_Controller_Host/src/ps3_spp.c",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SPI/src/SPI.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SD/src/SD.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SD/src/sd_diskio.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/SD/src/sd_diskio_crc.c",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/FS/src/FS.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
-    "Sourcefile": "/Users/ethandonlon/Library/Arduino15/packages/esp32/hardware/esp32/2.0.3/libraries/FS/src/vfs_api.cpp",
     "Include": "",
     "Includepath": null
   }

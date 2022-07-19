@@ -23,8 +23,8 @@ void setup()
 void recvBytesWithStartEndMarkers() {
     static bool recvInProgress = false;
     static uint8_t ndx = 0;
-    uint8_t startMarker = 0x02;//0x3C; //this is the start marker <
-    uint8_t endMarker = 0x03;//0x3E; //this is the start marker >
+    uint8_t startMarker = 0x3C; //this is the start marker <
+    uint8_t endMarker = 0x3E; //this is the start marker >
     uint8_t rb;
    
     while (SerialPort.available() > 0 && newData == false) {
@@ -61,7 +61,7 @@ void recvBytesWithStartEndMarkers() {
 void showNewData() {
     if (newData == true) {
         for (uint8_t n = 0; n < numReceived; n++) {
-            Serial.print(receivedBytes[n]);
+            Serial.write(receivedBytes[n]);
         }
         Serial.println();
         newData = false;
@@ -71,10 +71,4 @@ void showNewData() {
 void loop() {
     recvBytesWithStartEndMarkers();
     showNewData();
-    if(digitalRead(LED) != initialState){
-        Serial.println("button pressed");
-        while(digitalRead(LED) != initialState){};
-        Serial.println("button released");
-        SerialPort.print("PLAY /audio/Recording.mp4\r");
-    }
 }

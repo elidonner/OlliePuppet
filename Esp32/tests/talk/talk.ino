@@ -5,15 +5,19 @@
  * Then automates a servo to make puppet seem like it is talking
  */
 #include <driver/i2s.h>
+#include "espServo.h"
 
 #define I2S_SAMPLE_RATE 40000
 #define ADC_INPUT ADC1_CHANNEL_4 //pin 32
-#define CLOSED 1.00
-#define OPEN 1.34
+
+/**** SERVOSTUFF *****/
+#define SERVOPIN 25
+espServo mouth(SERVOPIN, 0, 1.15, 1.40);
 
 uint16_t adc_reading;
 
 const i2s_port_t I2S_PORT = I2S_NUM_0;
+
 
 const int DMA_SIZE = 1024;     //max I2S is 1024
 const int BLOCK_SIZE = DMA_SIZE / 2; // larger block size -> finer FFT time resolution bands,
@@ -44,31 +48,12 @@ void i2sInit()
    i2s_adc_enable(I2S_NUM_0);
 }
 
-/**** SERVOSTUFF *****/
-#define SERVOPIN 25
-// 40KHz > freq*resolution > 40MHz
-#define LEDC_RES_BITS 12        // cannot be higher than 14 bits
-#define LEDC_RES ((1<<LEDC_RES_BITS)-1)
-#define LEDC_FREQ_HZ 60
-#define CHANNEL0 0
-
-void servoSetup(int pin) {
-  ledcSetup(CHANNEL0, LEDC_FREQ_HZ, LEDC_RES_BITS); // channel, freq, bits
-  ledcAttachPin(pin, CHANNEL0);
-}
-
-void sendServo(float pulse_ms) {  // 1.0ms = 90o left, 2.0ms = 90o right, 1.5ms center
-  ledcWrite(CHANNEL0, (pulse_ms / 1000.0)*LEDC_FREQ_HZ * LEDC_RES);
-}
-
 void setup() {
   Serial.begin(115200);
   delay(100);
   
   // Initialize the I2S peripheral
   i2sInit();
-
-  servoSetup(SERVOPIN);
 }
 
 
@@ -92,10 +77,19 @@ void loop() {
     oldus = micros();
     
     smoothed = (smoothed*2 + maxsample)/3;  // low pass to make it less jittery
-    Serial.printf("maxv: %d \n", (int)smoothed );
-    // samples range from 50 to 2000 
-    if (smoothed > 2500.0) // noise threshold
-      sendServo(constrain(CLOSED + ((smoothed - 2500.0) / 20000.0), CLOSED, OPEN)); // send 1.0 to 2.0 ms
-    else sendServo(CLOSED); // close mouth 
+    Serial.printf("smoothed: %d \t", (int)smoothed);
+    // samples range from 50 to 2000
+    if (smoothed > 250.0) // noise threshold
+    {
+      int servo_value = constrain((int)smoothed, 250, 10000);
+      servo_value = map(servo_value, 250, 10000, 0, 100);
+      Serial.printf("servo_value: %d \n", servo_value);
+      mouth.sendServo(servo_value);
+      // sendServo(constrain(CLOSED + ((smoothed - 2500.0) / 20000.0), CLOSED, OPEN)); // send 1.0 to 2.0 ms
+    }
+    else
+    {
+      mouth.sendServo(0); // close mouth 
+    }
   } 
 }
