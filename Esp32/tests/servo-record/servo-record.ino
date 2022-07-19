@@ -12,7 +12,7 @@
 #include <SPI.h>
 #include <SD.h>
 #include <FS.h>
-#include "espServo.h"
+#include <espServo.h>
 
 /**
  * Pin Definitions
@@ -25,7 +25,9 @@
 /**
  * Miscellaneous Definitions
  */
-// #define RECORD
+// ONLY HAVE ONE OF BELOW UNCOMMENTED, OR BOTH COMMENTED FOR PLAY MODE
+//  #define RECORD
+#define CALIBRATE
 
 /**
  * Constants
@@ -38,13 +40,15 @@
 /**
  * Global Objects
  */
-// espServo leftEarServo(25, 0, 1.33, 2.0);
-// espServo rightEarServo(26, 2, 1.33, 2.0);
-espServo rightNeck(32, 4, 1.0, 2.3);
-espServo leftNeck(33, 6, 1.0, 2.3);
-// espServo mouthServo(25, 0, 1.33, 1.80)
+espServo leftEarServo(25, 0, 1.33, 2.0);
+espServo rightEarServo(26, 2, 1.33, 2.0);
+espServo leftNeckServo(33, 6, 1.0, 2.3);
+espServo rightNeckServo(32, 4, 1.0, 2.3);
+// espServo mouthServo(25, 0, 1.11, 1.40)
 
+#ifdef RECORD
 SPIClass spi = SPIClass(VSPI);
+#endif // RECORD
 
 /* -------------------------------------------------------------------------- */
 
@@ -53,39 +57,53 @@ SPIClass spi = SPIClass(VSPI);
  */
 void notify()
 {
-  int leftNeckThrottle = (Ps3.data.analog.stick.ly);       // Left stick  - y axis - throttle control
-  int rightNeckThrottle = (Ps3.data.analog.stick.ry);       // Left stick  - y axis - throttle control
-  int leftShoulder = (Ps3.data.analog.button.l1);  // left shoulder button
-  int rightShoulder = (Ps3.data.analog.button.r1); // right shoulder button
+  int leftNeckThrottle = (Ps3.data.analog.stick.ly);  // Left stick  - y axis - throttle control
+  int rightNeckThrottle = (Ps3.data.analog.stick.ry); // Left stick  - y axis - throttle control
+  int leftShoulder = (Ps3.data.analog.button.l1);     // left shoulder button
+  int rightShoulder = (Ps3.data.analog.button.r1);    // right shoulder button
 
   // Read ps3 stick and append to data string
-  int leftVal = map(leftNeckThrottle, 128, -128, 0, 100);
-  int rightVal = map(rightNeckThrottle, -128, 128, 0, 100);
+  int leftNeck = map(leftNeckThrottle, 128, -128, 0, 100);
+  int rightNeck = map(rightNeckThrottle, -128, 128, 0, 100);
+  int leftEar = map(leftShoulder, -128, 128, 0, 100);
+  int rightEar = map(rightShoulder, -128, 128, 0, 100);
 
+#ifdef CALIBRATE
+  leftNeck = ((float)leftNeck / 50.0) + 0.25;
+  rightNeck = ((float)rightNeck / 50.0) + 0.25;
+  leftEar = ((float)leftEar / 50.0) + 0.25;
+  rightEar = ((float)rightEar / 50.0) + 0.25;
+  Serial.print("LeftNeck: ");
+  Serial.print(leftNeck);
+  Serial.print("\tRightNeck: ");
+  Serial.print(rightNeck);
+  Serial.print("\LeftEar: ");
+  Serial.print(leftEar);
+  Serial.print("\RightEar: ");
+  Serial.println(rightEar);
   // Write to the servo
   // Delay to allow servo to settle in position
-  leftNeck.sendServo(leftVal);
-  rightNeck.sendServo(rightVal);
+  leftNeckServo.sendPulse(leftNeck);
+  rightNeckServo.sendPulse(rightNeck);
+  leftEarServo.sendPulse(rightNeck);
+  rightEarServo.sendPulse(rightNeck);
+#else
+  leftNeckServo.sendServo(leftNeck);
+  rightNeckServo.sendServo(rightNeck);
+  leftEarServo.sendServo(rightNeck);
+  rightEarServo.sendServo(rightNeck);
+#endif // CALIBRATE
   delay(15);
+
 
 // open the file. note that only one file can be open at a time,
 // so you have to close this one before opening another.
 #ifdef RECORD
   appendFile(SD, "/hello.txt", val);
 #endif
-
-  // throttle = (throttle >= 0 ? throttle : 0);
-  // baseSpeed = throttle/100.0;
-
-  // xAxisValue = map( xAxisValue, 127, -127, -255, 255);
-  // yAxisValue = map( yAxisValue, 127, -127, -255, 255);
-
-  // double steeringMag = sqrt(xAxisValue^2 + yAxisValue^2);
-  // double steeringX = xAxisValue/steeringMag;
-  // double steeringY = xAxisValue/steeringMag;
-
-  // base.driveCartesian(baseSpeed * 1.0, 0.0, 0.0);
 }
+
+#ifdef RECORD
 
 void appendFile(fs::FS &fs, const char *path, int message)
 {
@@ -120,6 +138,7 @@ void deleteFile(fs::FS &fs, const char *path)
     Serial.println("Delete failed");
   }
 }
+#endif // RECORD
 
 void onConnect()
 {

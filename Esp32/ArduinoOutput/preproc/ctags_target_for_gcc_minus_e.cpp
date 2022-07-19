@@ -1,183 +1,100 @@
-# 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
+# 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/talk.ino"
 /*
-
- * RC Car with ps3 controller
-
- * https://github.com/jvpernis/esp32-ps3/blob/master/examples/Ps3Demo/Ps3Demo.ino
-
- *
-
- * @author Ethan Donlon
-
+ * This is an example to read analog data at high frequency using the I2S peripheral
+ * Reads in filtered audio signal from aux chord
+ * The readings from the device will be 12bit (0-4096)
+ * Then automates a servo to make puppet seem like it is talking
  */
-# 8 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-/**
-
- * Includes
-
- */
-# 11 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-# 12 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino" 2
-# 13 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino" 2
-# 14 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino" 2
-# 15 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino" 2
-# 16 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino" 2
-
-/**
-
- * Pin Definitions
-
- */
+# 8 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/talk.ino" 2
+# 9 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/talk.ino" 2
 
 
 
-/**
 
- * Miscellaneous Definitions
+/**** SERVOSTUFF *****/
 
- */
-# 28 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-// #define RECORD
+espServo mouth(25, 0, 1.15, 1.40);
 
-/**
+uint16_t adc_reading;
 
- * Constants
+const i2s_port_t I2S_PORT = I2S_NUM_0;
 
- */
-# 34 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-/**
 
- * Global Variables
+const int DMA_SIZE = 1024; //max I2S is 1024
+const int BLOCK_SIZE = DMA_SIZE / 2; // larger block size -> finer FFT time resolution bands,
 
- */
-# 38 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-/**
+//  SPH0645 requires 1 to 4Mhz clock. 64 bits per sample means 16Khz to 64Khz sample rate
+// but I2S samples are 32 bits so sampling freq must be 32Khz to 128Khz.
+const int samplingFrequency = 40000;
 
- * Global Objects
+int32_t samples[DMA_SIZE];
 
- */
-# 41 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-// espServo leftEarServo(25, 0, 1.33, 2.0);
-// espServo rightEarServo(26, 2, 1.33, 2.0);
-espServo rightNeck(32, 4, 1.0, 2.3);
-espServo leftNeck(33, 6, 1.0, 2.3);
-// espServo mouthServo(25, 0, 1.33, 1.80)
-
-SPIClass spi = SPIClass(3 /*SPI bus normally attached to pins 5, 18, 19 and 23, but can be matrixed to any pins*/);
-
-/* -------------------------------------------------------------------------- */
-
-/**
-
- * Get PS3 Notifications
-
- */
-# 54 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-void notify()
+void i2sInit()
 {
-  int leftNeckThrottle = (Ps3.data.analog.stick.ly); // Left stick  - y axis - throttle control
-  int rightNeckThrottle = (Ps3.data.analog.stick.ry); // Left stick  - y axis - throttle control
-  int leftShoulder = (Ps3.data.analog.button.l1); // left shoulder button
-  int rightShoulder = (Ps3.data.analog.button.r1); // right shoulder button
-
-  // Read ps3 stick and append to data string
-  int leftVal = map(leftNeckThrottle, 128, -128, 0, 100);
-  int rightVal = map(rightNeckThrottle, -128, 128, 0, 100);
-
-  // Write to the servo
-  // Delay to allow servo to settle in position
-  leftNeck.sendServo(leftVal);
-  rightNeck.sendServo(rightVal);
-  delay(15);
-
-// open the file. note that only one file can be open at a time,
-// so you have to close this one before opening another.
-
-
-
-
-  // throttle = (throttle >= 0 ? throttle : 0);
-  // baseSpeed = throttle/100.0;
-
-  // xAxisValue = map( xAxisValue, 127, -127, -255, 255);
-  // yAxisValue = map( yAxisValue, 127, -127, -255, 255);
-
-  // double steeringMag = sqrt(xAxisValue^2 + yAxisValue^2);
-  // double steeringX = xAxisValue/steeringMag;
-  // double steeringY = xAxisValue/steeringMag;
-
-  // base.driveCartesian(baseSpeed * 1.0, 0.0, 0.0);
+   i2s_config_t i2s_config = {
+    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX | I2S_MODE_ADC_BUILT_IN),
+    .sample_rate = 40000, // The format of the signal using ADC_BUILT_IN
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT, // is fixed at 12bit, stereo, MSB
+    .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = (1<<1) /*|< Accept a Level 1 interrupt vector (lowest priority)*/,
+    .dma_buf_count = 4,
+    .dma_buf_len = 8,
+    .use_apll = false,
+    .tx_desc_auto_clear = false,
+    .fixed_mclk = 0
+   };
+   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, 
+# 46 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/talk.ino" 3 4
+                                                __null
+# 46 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/talk.ino"
+                                                    );
+   i2s_set_adc_mode(ADC_UNIT_1, ADC1_CHANNEL_4 /*pin 32*/);
+   i2s_adc_enable(I2S_NUM_0);
 }
 
-void appendFile(fs::FS &fs, const char *path, int message)
-{
-  Serial.printf("Appending to file: %s\n", path);
-
-  File file = fs.open(path, "a");
-  if (!file)
-  {
-    Serial.println("Failed to open file for appending");
-    return;
-  }
-  if (file.printf("%d\n", message))
-  {
-    Serial.println("Message appended");
-  }
-  else
-  {
-    Serial.println("Append failed");
-  }
-  file.close();
-}
-
-void deleteFile(fs::FS &fs, const char *path)
-{
-  Serial.printf("Deleting file: %s\n", path);
-  if (fs.remove(path))
-  {
-    Serial.println("File deleted");
-  }
-  else
-  {
-    Serial.println("Delete failed");
-  }
-}
-
-void onConnect()
-{
-  Serial.println("Connected!.");
-
-
-
-}
-
-void onDisConnect()
-{
-  Serial.println("Disconnected!.");
-}
-
-/* -------------------------------------------------------------------------- */
-
-void setup()
-{
-  // General
+void setup() {
   Serial.begin(115200);
-  delay(3000);
-# 171 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/servo-record.ino"
-  // PS3 Controller
-  Ps3.attach(notify);
-  Ps3.attachOnConnect(onConnect);
-  Ps3.attachOnDisconnect(onDisConnect);
-  Ps3.begin("00:1b:fb:94:e6:94");
-  Serial.println("Ready.");
+  delay(100);
+
+  // Initialize the I2S peripheral
+  i2sInit();
 }
 
-void loop()
-{
-  if (!Ps3.isConnected())
-  {
+
+void loop() {
+  size_t num_bytes_read;
+  int32_t val;
+  static float maxsample, avgsample, smoothed;
+  static uint32_t oldus;
+
+
+  i2s_read(I2S_PORT, (char *)samples, DMA_SIZE * sizeof(samples[0]), &num_bytes_read, ( TickType_t ) 0xffffffffUL); // no timeout
+  for (uint16_t i = 0; i < BLOCK_SIZE; i++) {
+    val = ((~samples[i * 2]) + 1) >> 14; // SPH0645 sends 18bits of 2's complement values 
+    avgsample = (avgsample * 20000 + val) / 20001;
+    if (abs(val - (int)avgsample) > maxsample)
+      maxsample = abs(val - (int)avgsample); // SPH0645 assumes 2 devices (L & R) so we throw out one
+    else maxsample = (maxsample * 2000 + abs(val - (int)avgsample)) / 2001;
   }
-  else
-  {
+
+  if (micros() - oldus > 1000000 / 60) {
+    oldus = micros();
+
+    smoothed = (smoothed*2 + maxsample)/3; // low pass to make it less jittery
+    Serial.printf("smoothed: %d \t", (int)smoothed);
+    // samples range from 50 to 2000
+    if (smoothed > 250.0) // noise threshold
+    {
+      int servo_value = (((int)smoothed)<(250)?(250):(((int)smoothed)>(10000)?(10000):((int)smoothed)));
+      servo_value = map(servo_value, 250, 10000, 0, 100);
+      Serial.printf("servo_value: %d \n", servo_value);
+      mouth.sendServo(servo_value);
+      // sendServo(constrain(CLOSED + ((smoothed - 2500.0) / 20000.0), CLOSED, OPEN)); // send 1.0 to 2.0 ms
+    }
+    else
+    {
+      mouth.sendServo(0); // close mouth 
+    }
   }
 }

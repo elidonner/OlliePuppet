@@ -1,4 +1,4 @@
-#line 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/servo-record/espServo.cpp"
+#line 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/Esp32/tests/talk/espServo.cpp"
 #include "espServo.h"
 
 espServo::espServo(int _pin, int _channel, float _min_pulse, float _max_pulse) : pin(_pin), channel(_channel), min_pulse(_min_pulse), max_pulse(_max_pulse)

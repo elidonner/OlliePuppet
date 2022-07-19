@@ -1,65 +1,53 @@
-// We'll track the volume level in this variable.
-float servo_pulse = 1.0;
+/**
+ * @file servo_calibration.ino
+ * @author Ethan Donlon
+ * @brief
+ * @version 0.1
+ * @date 2022-07-18
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
 
+#include <espServo.h>
 
 /**** SERVOSTUFF *****/
-#define SERVOPIN 33
-// 40KHz > freq*resolution > 40MHz
-#define LEDC_RES_BITS 12        // cannot be higher than 14 bits
-#define LEDC_RES ((1<<LEDC_RES_BITS)-1)
-#define LEDC_FREQ_HZ 60
-#define CHANNEL0 0
+#define SERVOPIN 25
+espServo servo(25, 0);
+int servo_pulse;
 
-void servoSetup(int pin) {
-  ledcSetup(CHANNEL0, LEDC_FREQ_HZ, LEDC_RES_BITS); // channel, freq, bits
-  ledcAttachPin(pin, CHANNEL0);
-}
-
-void sendServo(float pulse_ms) {  // 1.0ms = 90o left, 2.0ms = 90o right, 1.5ms center
-  ledcWrite(CHANNEL0, (pulse_ms / 1000.0)*LEDC_FREQ_HZ * LEDC_RES);
-}
-
-void setup() {
+void setup()
+{
   Serial.begin(115200);
-  servoSetup(SERVOPIN);
 }
 
 // Read in + and - characters to set the volume.
-void loop() {
-  if (! Serial.available()) return;
-  
-  // read a character from serial console
-  char c = Serial.read();
-  
-  // increase
-  if (c == '+') {
-    servo_pulse+=0.01;
-  }
-  // decrease
-  else if (c == '-') {
-    servo_pulse-=0.01;
-  }
-  // else if(c == '<'){
-  //   c = Serial.read();
-  //   char string_pulse[3];
-  //   int i =0;
-  //   while(i < '2'){
-  //     string_pulse[i] = c;
-  //     c = Serial.read();
-  //     i++;
-  //   }
-  //   string_pulse[3] = "\0";
-  //   int ans = atoi(string_pulse);
-  //   servo_pulse = 1.00+ ans/100.0;
-
-  // }
-  // ignore anything else
-  else 
-    return;
+void loop()
+{
+  if (Serial.available() > 0)
+  {
+    // read a character from serial console
+    String data = Serial.readStringUntil('\n');
+    Serial.print("data: ");
+    Serial.println(data);
     
-  servo_pulse = constrain(servo_pulse,.8,2.0);
+    // increase
+    if (data[0] == '+')
+    {
+      servo_pulse += data.length();
+    }
+    // decrease
+    else if (data[0] == '-')
+    {
+      servo_pulse -= data.length();
+    }
+    else
+    {
+        servo_pulse = data.toFloat();
+    }
 
-  Serial.println(servo_pulse);
+    Serial.println(servo_pulse);
 
-  sendServo(servo_pulse);
+    servo.sendPulse(servo_pulse);
+  }
 }

@@ -6,7 +6,7 @@ BrightSign::BrightSign(HardwareSerial &serial) {
 }
 
 void BrightSign::update(){
-    Serial.println("in update");
+    // Serial.println("in update");
     if (bs_serial->available()>2)
     {
           Serial.println("serial available");
@@ -36,6 +36,7 @@ void BrightSign::update(){
 
 void BrightSign::play(String file){
 bs_serial->print("PLAY " + file + "\r");
+Serial.print("PLAY " + file + "\r");
 bs_media_ended = false;
 }
 
