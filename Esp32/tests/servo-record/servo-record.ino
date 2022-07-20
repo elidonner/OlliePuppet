@@ -13,6 +13,7 @@
 #include <SD.h>
 #include <FS.h>
 #include <espServo.h>
+#include <HardwareSerial.h>
 
 /**
  * Pin Definitions
@@ -21,12 +22,13 @@
 #define MISO 19
 #define MOSI 23
 #define CS 5
+#define LED 2
 
 /**
  * Miscellaneous Definitions
  */
 // ONLY HAVE ONE OF BELOW UNCOMMENTED, OR BOTH COMMENTED FOR PLAY MODE
-//  #define RECORD
+#define RECORD
 // #define CALIBRATE
 
 /**
@@ -36,27 +38,58 @@
 /**
  * Global Variables
  */
+HardwareSerial SerialPort(1); // use UART1
 
 /**
  * Global Objects
  */
-// espServo leftEarServo(25, 0, 1.33, 2.0);
-// espServo rightEarServo(26, 2, 1.33, 2.0);
-espServo leftNeckServo(33, 4, 1.4, 1.6);
-espServo rightNeckServo(32, 6, 1.4, 1.6);
-// espServo mouthServo(25, 0, 1.11, 1.40)
+espServo leftEarServo(25, 0, 1.0, 1.6);
+espServo rightEarServo(26, 2, 1.0, 1.6); // inverted though
+espServo leftNeckServo(33, 4, 1.5, 1.9); // inverted though
+espServo rightNeckServo(32, 6, 1.1, 1.5);
+// espServo mouthServo(25, 0, 1.23, 1.45)
 
 #ifdef RECORD
 SPIClass spi = SPIClass(VSPI);
+bool recording = false;
+int servo_values[4];
+String file_name = "/none.txt";
 #endif // RECORD
 
 /* -------------------------------------------------------------------------- */
+
+
+void handle_files()
+{
+#ifdef RECORD
+    if (SerialPort.available() > 0)
+    {
+      file_name = Serial.readStringUntil('\n');
+      int num = file_name.toInt();
+      if (num == 50)
+      {
+        recording = false;
+        digitalWrite(LED, LOW);
+      }
+      else
+      {
+        file_name = "/" + file_name + ".txt";
+        deleteFile(SD, file_name.c_str());
+        recording = true;
+        digitalWrite(LED, HIGH);
+      }
+    }
+#endif
+}
+
 
 /**
  * Get PS3 Notifications
  */
 void notify()
 {
+  handle_files();
+  
   int leftNeckThrottle = (Ps3.data.analog.stick.ly);  // Left stick  - y axis - throttle control
   int rightNeckThrottle = (Ps3.data.analog.stick.ry); // Left stick  - y axis - throttle control
   int leftShoulder = (Ps3.data.analog.button.l1);     // left shoulder button
@@ -66,7 +99,7 @@ void notify()
   int leftNeck = map(leftNeckThrottle, -128, 128, 0, 100);
   int rightNeck = map(rightNeckThrottle, 128, -128, 0, 100);
   int leftEar = map(leftShoulder, 0, 255, 0, 100);
-  int rightEar = map(rightShoulder, 0, 255, 0, 100);
+  int rightEar = map(rightShoulder, 0, 255, 100, 0);
 
 #ifdef CALIBRATE
   float leftFloatNeck = ((float)leftNeck / 50.0) + 0.5;
@@ -88,22 +121,30 @@ void notify()
 #else
   leftNeckServo.sendServo(leftNeck);
   rightNeckServo.sendServo(rightNeck);
-  // leftEarServo.sendServo(leftEar);
-  // rightEarServo.sendServo(rightEar);
+  leftEarServo.sendServo(leftEar);
+  rightEarServo.sendServo(rightEar);
+
 #endif // CALIBRATE
   delay(15);
-
 
 // open the file. note that only one file can be open at a time,
 // so you have to close this one before opening another.
 #ifdef RECORD
-  appendFile(SD, "/hello.txt", val);
+  if (recording)
+  {
+    servo_values[0] = leftNeck;
+    servo_values[1] = rightNeck;
+    servo_values[2] = leftEar;
+    servo_values[3] = rightEar;
+
+    appendFile(SD, file_name.c_str());
+  }
 #endif
 }
 
 #ifdef RECORD
 
-void appendFile(fs::FS &fs, const char *path, int message)
+void appendFile(fs::FS &fs, const char *path)
 {
   Serial.printf("Appending to file: %s\n", path);
 
@@ -113,7 +154,7 @@ void appendFile(fs::FS &fs, const char *path, int message)
     Serial.println("Failed to open file for appending");
     return;
   }
-  if (file.printf("%d\n", message))
+  if (file.printf("%d,%d,%d,%d\n", servo_values[0], servo_values[1], servo_values[2], servo_values[3]))
   {
     Serial.println("Message appended");
   }
@@ -141,9 +182,6 @@ void deleteFile(fs::FS &fs, const char *path)
 void onConnect()
 {
   Serial.println("Connected!.");
-#ifdef RECORD
-  deleteFile(SD, "/hello.txt");
-#endif
 }
 
 void onDisConnect()
@@ -160,6 +198,10 @@ void setup()
   delay(3000);
 
 #ifdef RECORD
+  // pin to communciate with arduino
+  pinMode(LED, OUTPUT);
+  SerialPort.begin(115200, SERIAL_8N1, 9, 10);
+
   // SD Card
   spi.begin(SCK, MISO, MOSI, CS);
 

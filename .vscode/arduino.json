@@ -1,5 +1,5 @@
 {
-    "port": "/dev/tty.usbmodem143201",
+    "port": "/dev/tty.usbmodem1411201",
     "configuration": "PartitionScheme=default,UploadSpeed=921600,DebugLevel=none",
     "board": "esp32:esp32:pico32",
     "sketch": "Esp32/tests/servo-record/servo-record.ino",
