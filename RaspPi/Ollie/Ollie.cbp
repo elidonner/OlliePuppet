@@ -67,7 +67,6 @@
 			<Add directory="/home/pi/tensorflow/tensorflow/lite/tools/make/gen/linux_aarch64/lib" />
 			<Add directory="/home/pi/tensorflow/tensorflow/lite/tools/make/downloads/flatbuffers/build" />
 		</Linker>
-		<Unit filename="include/debug.h" />
 		<Unit filename="include/BYTETracker.h" />
 		<Unit filename="include/STrack.h" />
 		<Unit filename="include/audio.hpp" />
