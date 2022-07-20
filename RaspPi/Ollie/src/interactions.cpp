@@ -128,11 +128,9 @@ void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vect
 
     for (auto person : person_info)
     {
-#define DEBUG
 #ifdef DEBUG
         cv::putText(frame, format("%d", person.label), Point(person.x1, person.y1 - 5),
                 0, 0.6, Scalar(0, 0, 255), 2, LINE_AA);
-        // FIXME: check the scalar color input
         cv::rectangle(frame, Rect(person.x1, person.y1, person.width, person.height), (0, 0, 255), 2);
 #endif
 

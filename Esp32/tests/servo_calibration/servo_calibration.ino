@@ -12,9 +12,9 @@
 #include <espServo.h>
 
 /**** SERVOSTUFF *****/
-#define SERVOPIN 25
-espServo servo(25, 0);
-int servo_pulse;
+#define SERVOPIN 26
+espServo servo(SERVOPIN, 0);
+float servo_pulse;
 
 void setup()
 {
@@ -34,12 +34,12 @@ void loop()
     // increase
     if (data[0] == '+')
     {
-      servo_pulse += data.length();
+      servo_pulse += (float)(data.length())/100.0;
     }
     // decrease
     else if (data[0] == '-')
     {
-      servo_pulse -= data.length();
+      servo_pulse -= (float)data.length()/100.0;
     }
     else
     {
