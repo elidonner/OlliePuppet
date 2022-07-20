@@ -32,9 +32,7 @@
 #include "audio.hpp"
 #include "servo.hpp"
 #include "mode.hpp"
-
-
-#define DEBUG
+#include "debug.h"
 
 // interaction class object
 class Interactions

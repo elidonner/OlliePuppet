@@ -7,13 +7,10 @@
 #include "servo.hpp"
 #include "serial.hpp"
 #include "person.hpp"
+#include "debug.h"
 
 
 using namespace std;
-
-#ifndef DEBUG
-#define DEBUG
-#endif
 
 
 int main(int argc, char **argv)
