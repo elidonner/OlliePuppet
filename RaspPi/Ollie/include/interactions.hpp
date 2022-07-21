@@ -38,7 +38,7 @@
 class Interactions
 {
 public:
-    Interactions(Audio &_audio, Servo &_servo);
+    Interactions(Audio &_audio, Servo &_servo, Serial &_serial);
 
     void start_main_timer();
     void update_people(std::vector<PersonInfo> &person_info, std::vector<Person> &people, cv::Mat &frame);
@@ -59,6 +59,7 @@ private:
 private:
     Audio & audio;
     Servo & servo;
+    Serial & ser;
     bool tracking_person = false;
     std::vector<int> prev_round;
     std::vector<Mode> modes;

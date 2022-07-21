@@ -19,7 +19,7 @@ UltraPerson::UltraPerson(BYTETracker &_tracker, const std::string &yolo_path, in
     interpreter->AllocateTensors();
 
     //     Get the names
-    bool result = getFileContent("COCO_labels.txt");
+    bool result = getFileContent("/home/pi/OlliePuppet/RaspPi/Ollie/COCO_labels.txt");
     if (!result)
     {
         cout << "loading labels failed";

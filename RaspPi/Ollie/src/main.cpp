@@ -2,6 +2,8 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "BYTETracker.h"
+#include <signal.h>
+#include <pigpio.h>
 #include "tfliteTrack.hpp"
 #include "interactions.hpp"
 #include "servo.hpp"
@@ -38,27 +40,29 @@ int main(int argc, char **argv)
     {
         return 1;
     }
-    // gpioSetSignalFunc(SIGINT, stop);
+//     gpioSetSignalFunc(SIGINT, stop);
 
     // Initialize a servo
     Servo servo(17, 0, 1000, 2000, 1500);
     // Initialize Serial
 //    Serial ser("/dev/ttyS0", 115200); //GPIO Serial
     Serial ser("/dev/ttyACM0", 115200); //USB Serial with Arduino Mega
+//    std::string to_send = "<60>";
+//    ser.write((char*)to_send.c_str());
     fflush(stdout);
     //interactions object to handle ollies interactions and timers
     Audio audio(ser);
     vector<Person> people;
-    Interactions interactions(audio, servo);
+    Interactions interactions(audio, servo, ser);
 
 
     //load deep learning model with tracking model
     BYTETracker tracker(22, 30);
-    UltraPerson deepModel(tracker, "detect.tflite", 300, 300, 4, 0.6);
+    UltraPerson deepModel(tracker, "/home/pi/OlliePuppet/RaspPi/Ollie/detect.tflite", 300, 300, 4, 0.6);
 //
-//    cv::VideoCapture cap(-1);
+    cv::VideoCapture cap(-1);
 //    cv::VideoCapture cap("FWM2.mp4");
-    cv::VideoCapture cap("FWM_3_People.mp4");
+//    cv::VideoCapture cap("/home/pi/OlliePuppet/RaspPi/Ollie/FWM_3_People.mp4");
     if (!cap.isOpened())
     {
         cerr << "ERROR: Unable to open the camera" << endl;
@@ -100,6 +104,7 @@ int main(int argc, char **argv)
                 {
                     //if(serial.read()) says audio is done playing
                     audio.audio_done();
+//                    std::cout<<"audio_done"<<std::endl;
                 }
 
             }
@@ -127,6 +132,9 @@ int main(int argc, char **argv)
             break;
 #endif
     }
+//    to_send = "<70>";
+//    ser.write((char*)to_send.c_str());
+//    fflush(stdout);
 
     servo.kill();
     cout << "Closing the camera" << endl;

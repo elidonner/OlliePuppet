@@ -50,8 +50,8 @@ void Audio::determine_pool(int mode, std::chrono::steady_clock::time_point main_
     int time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - main_timer).count();
     pool = 0;
     //if we have said one of the group sayings, go ahead and add general sayings to the audio pool
-    if(!first_time)
-    {
+//    if(!first_time)
+//    {
         if(time < 1)
         {
             // if a second hasn't passed, do nothing, to avoid noise
@@ -62,16 +62,16 @@ void Audio::determine_pool(int mode, std::chrono::steady_clock::time_point main_
             //in the 0-10 sec
             pool |= bit_ones(0, 1, 5);
         }
-        else if(time < 120){
+        else if(time < 60){
             //in the 10-2 min
             pool |= bit_ones(0,6, 14);
         }
         else
         {
             //> than 2 min
-            pool |= bit_ones(0,6, 17);
+            pool |= bit_ones(0,6, 18);
         }
-    }
+//    }
 
     // if it is a valid case, pull the given audio files
     if (valid_case)
@@ -79,7 +79,8 @@ void Audio::determine_pool(int mode, std::chrono::steady_clock::time_point main_
         switch (mode){
             case 1:
                 //files 19-26
-                pool |= bit_ones(0, 19, 26);
+                pool |= bit_ones(0, 19, 22);
+                pool |= bit_ones(0, 24, 25);
                 break;
             case 2:
                 //files 26-28
@@ -184,7 +185,7 @@ void Audio::play_audio(std::vector<Person> & people, bool & first_time)
     //play the audio file
     int int_to_send = countTrailingZero(to_play);
 
-    std::string to_send = std::to_string(int_to_send)+"\n";
+    std::string to_send = "<"+std::to_string(int_to_send)+">";
 
     audio_playing = true;
 
@@ -197,7 +198,7 @@ void Audio::play_audio(std::vector<Person> & people, bool & first_time)
 void Audio::audio_done()
 {
     //reset the wait_time flag
-    wait_time = rand_int(8, 30);
+    wait_time = rand_int(4, 10);
 //    std::cout<<"wait_time: "<<wait_time<<std::endl;
     audio_playing = false;
     audio_timer = std::chrono::steady_clock::now();

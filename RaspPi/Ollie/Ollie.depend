@@ -1377,7 +1377,7 @@
 1658153075 /home/pi/OlliePuppet/RaspPi/Ollie/include/person.hpp
 	<chrono>
 
-1658102157 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/serial.cpp
+1658345208 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/serial.cpp
 	"serial.hpp"
 
 1658099087 /home/pi/OlliePuppet/RaspPi/Ollie/include/serial.hpp
@@ -1399,7 +1399,7 @@
 1658016987 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/STrack.cpp
 	"STrack.h"
 
-1658256723 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/audio.cpp
+1658346146 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/audio.cpp
 	"audio.hpp"
 
 1658097810 /home/pi/OlliePuppet/RaspPi/Ollie/include/audio.hpp
@@ -1413,7 +1413,7 @@
 	"BYTETracker.h"
 	"lapjv.h"
 
-1658027928 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/tfliteTrack.cpp
+1658320433 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/tfliteTrack.cpp
 	"tfliteTrack.hpp"
 
 1658027936 /home/pi/OlliePuppet/RaspPi/Ollie/include/tfliteTrack.hpp
@@ -1687,29 +1687,35 @@
 	"tensorflow/lite/c/common.h"
 	"tensorflow/lite/string_type.h"
 
-1658250288 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/interactions.cpp
+1658333573 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/interactions.cpp
 	"interactions.hpp"
 
-1658160439 /home/pi/OlliePuppet/RaspPi/Ollie/include/interactions.hpp
+1658326285 /home/pi/OlliePuppet/RaspPi/Ollie/include/interactions.hpp
 	<iostream>
 	"tfliteTrack.hpp"
 	"audio.hpp"
 	"servo.hpp"
 	"mode.hpp"
+	"debug.h"
 
-1658256897 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/main.cpp
+1658351293 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/main.cpp
 	<stdio.h>
 	<iostream>
 	<opencv2/opencv.hpp>
 	"BYTETracker.h"
+	<signal.h>
+	<pigpio.h>
 	"tfliteTrack.hpp"
 	"interactions.hpp"
 	"servo.hpp"
 	"serial.hpp"
 	"person.hpp"
+	"debug.h"
 
 1658063543 /home/pi/OlliePuppet/RaspPi/Ollie/include/mode.hpp
 
-1658063607 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/mode.cpp
+1658325749 source:/home/pi/OlliePuppet/RaspPi/Ollie/src/mode.cpp
 	"mode.hpp"
+
+1658355140 /home/pi/OlliePuppet/RaspPi/Ollie/include/debug.h
 

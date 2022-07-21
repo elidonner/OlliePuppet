@@ -71,6 +71,7 @@
 		<Unit filename="include/STrack.h" />
 		<Unit filename="include/audio.hpp" />
 		<Unit filename="include/dataType.h" />
+		<Unit filename="include/debug.h" />
 		<Unit filename="include/interactions.hpp" />
 		<Unit filename="include/kalmanFilter.h" />
 		<Unit filename="include/lapjv.h" />

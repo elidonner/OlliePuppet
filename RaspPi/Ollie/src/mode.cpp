@@ -6,7 +6,7 @@ Mode::Mode()
 
 void Mode::increment_cnt()
 {
-    if(cnt<20)
+    if(cnt<40)
     {
         cnt++;
     }

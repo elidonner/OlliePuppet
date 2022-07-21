@@ -1,6 +1,6 @@
 #include "interactions.hpp"
 
-Interactions::Interactions(Audio &_audio, Servo &_servo):audio(_audio), servo(_servo)
+Interactions::Interactions(Audio &_audio, Servo &_servo, Serial &_serial):audio(_audio), servo(_servo), ser(_serial)
 {
     //initiate the main_timer
     start_main_timer();
@@ -58,7 +58,7 @@ void Interactions::is_case_valid(int mode)
         }
     }
 
-    if (modes.at(current_case).cnt <= 10)
+    if (modes.at(current_case).cnt <= 20)
     {
         valid_case = false;
     }
@@ -206,7 +206,6 @@ void Interactions::update_people(std::vector<PersonInfo> &person_info, std::vect
             i++;
         }
     }
-
 
     // reset the label
     prev_round = this_round;

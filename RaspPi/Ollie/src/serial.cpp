@@ -63,7 +63,7 @@ int Serial::read()
                 receivedBytes[ndx] = '\0'; // terminate the string
                 recvInProgress = false;
                 numReceived = ndx; // save the number for use when printing
-//                showNewData();
+//                std::cout<<receivedBytes[0]<<std::endl;
                 if(receivedBytes[0]=='1')
                 {
                     return 1;
