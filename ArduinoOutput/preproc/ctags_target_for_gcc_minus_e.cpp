@@ -1,3 +1,4 @@
+# 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
 /**
  * UnoBright.ino
  * @author Ethan Donlon
@@ -8,10 +9,10 @@
  *
  */
 
-#include "binary.h"
+# 12 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino" 2
 
-#define SERVO_ESP 17
-#define MOUTH_ESP 18
+
+
 
 Binary binary(52, 50, 48, 46, 44, 42, 40, 38);
 
@@ -27,7 +28,7 @@ void recvBytesWithStartEndMarkers()
   static bool recvInProgress = false;
   static uint8_t ndx = 0;
   uint8_t startMarker = 0x3C; // this is the start marker <
-  uint8_t endMarker = 0x3E;   // this is the start marker >
+  uint8_t endMarker = 0x3E; // this is the start marker >
   uint8_t rb;
 
   while (Serial.available() > 0 && newData == false)
@@ -127,10 +128,10 @@ void setup()
   // Start the serial 1 for talking to esp
   Serial1.begin(115200);
   Serial2.end();
-  pinMode(SERVO_ESP, OUTPUT);
-  pinMode(MOUTH_ESP, OUTPUT);
-  digitalWrite(SERVO_ESP, LOW);
-  digitalWrite(MOUTH_ESP, LOW);
+  pinMode(17, 0x1);
+  pinMode(18, 0x1);
+  digitalWrite(17, 0x0);
+  digitalWrite(18, 0x0);
 
   //start binary port
   binary.setup();
@@ -142,8 +143,8 @@ void loop()
 
   if (newData == true)
   {
-    digitalWrite(SERVO_ESP, HIGH);
-    digitalWrite(MOUTH_ESP, HIGH);
+    digitalWrite(17, 0x1);
+    digitalWrite(18, 0x1);
 
     String data = "";
     for (uint8_t n = 0; n < numReceived; n++)
@@ -181,8 +182,8 @@ void loop()
       binary.wait_for_audio();
 
       //Tell servo we are done
-      digitalWrite(SERVO_ESP, LOW);
-      digitalWrite(MOUTH_ESP, LOW);
+      digitalWrite(17, 0x0);
+      digitalWrite(18, 0x0);
     }
     newData = false;
     Serial.print("<1>");

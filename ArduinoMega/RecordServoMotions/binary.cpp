@@ -34,14 +34,11 @@ void Binary::write(int num)
         if(num & i)
         {
             digitalWrite(pin, HIGH);
-            Serial.print(1);
         }
         else{
-            Serial.print(0);
         }
         i <<= 1;
     }
-    Serial.println();
     delay(1000);
     digitalWrite(status_pin, HIGH);
     clear_pins();

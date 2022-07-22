@@ -39,6 +39,12 @@
  * Global Variables
  */
 HardwareSerial SerialPort(1); // use UART1
+const uint8_t numBytes = 32;
+uint8_t receivedBytes[numBytes];
+uint8_t numReceived = 0;
+int initialState;
+
+bool newData = false;
 
 /**
  * Global Objects
@@ -52,36 +58,85 @@ espServo rightNeckServo(32, 6, 1.1, 1.5);
 #ifdef RECORD
 SPIClass spi = SPIClass(VSPI);
 bool recording = false;
-int servo_values[4];
 String file_name = "/none.txt";
+File dataFile;
+String dataString;
 #endif // RECORD
 
 /* -------------------------------------------------------------------------- */
+void recvBytesWithStartEndMarkers()
+{
+  static bool recvInProgress = false;
+  static uint8_t ndx = 0;
+  uint8_t startMarker = 0x3C; // this is the start marker <
+  uint8_t endMarker = 0x3E;   // this is the start marker >
+  uint8_t rb;
 
+  while (SerialPort.available() > 0 && newData == false)
+  {
+    rb = SerialPort.read();
+
+    if (recvInProgress == true)
+    {
+      if (rb != endMarker)
+      {
+        receivedBytes[ndx] = rb;
+        ndx++;
+        if (ndx >= numBytes)
+        {
+          ndx = numBytes - 1;
+        }
+      }
+      else
+      {
+        receivedBytes[ndx] = '\0'; // terminate the string
+        recvInProgress = false;
+        numReceived = ndx; // save the number for use when printing
+        ndx = 0;
+        newData = true;
+      }
+    }
+
+    else if (rb == startMarker)
+    {
+      recvInProgress = true;
+    }
+  }
+}
 
 void handle_files()
 {
 #ifdef RECORD
-    if (SerialPort.available() > 0)
+  recvBytesWithStartEndMarkers();
+
+  if (newData == true)
+  {
+    file_name = "";
+    for (uint8_t n = 0; n < numReceived; n++)
     {
-      file_name = Serial.readStringUntil('\n');
-      int num = file_name.toInt();
-      if (num == 50)
-      {
-        recording = false;
-        digitalWrite(LED, LOW);
-      }
-      else
-      {
-        file_name = "/" + file_name + ".txt";
-        deleteFile(SD, file_name.c_str());
-        recording = true;
-        digitalWrite(LED, HIGH);
-      }
+      file_name += String(((char)receivedBytes[n]));
     }
+    Serial.println(file_name);
+
+    int num = file_name.toInt();
+    if (num == 50)
+    {
+      recording = false;
+      dataFile.close();
+      digitalWrite(LED, LOW);
+    }
+    else
+    {
+      file_name = "/" + file_name + ".txt";
+      recording = true;
+      dataFile = SD.open(file_name, FILE_WRITE);
+      digitalWrite(LED, HIGH);
+    }
+
+    newData = false;
+  }
 #endif
 }
-
 
 /**
  * Get PS3 Notifications
@@ -89,7 +144,7 @@ void handle_files()
 void notify()
 {
   handle_files();
-  
+
   int leftNeckThrottle = (Ps3.data.analog.stick.ly);  // Left stick  - y axis - throttle control
   int rightNeckThrottle = (Ps3.data.analog.stick.ry); // Left stick  - y axis - throttle control
   int leftShoulder = (Ps3.data.analog.button.l1);     // left shoulder button
@@ -130,54 +185,31 @@ void notify()
 // open the file. note that only one file can be open at a time,
 // so you have to close this one before opening another.
 #ifdef RECORD
+  // open the file. note that only one file can be open at a time,
+  // so you have to close this one before opening another.
   if (recording)
   {
-    servo_values[0] = leftNeck;
-    servo_values[1] = rightNeck;
-    servo_values[2] = leftEar;
-    servo_values[3] = rightEar;
-
-    appendFile(SD, file_name.c_str());
+    dataString = "";
+    dataString += String(leftNeck) + ",";
+    dataString += String(rightNeck) + ",";
+    dataString += String(leftEar) + ",";
+    dataString += String(rightEar);
+    // if the file is available, write to it:
+    if (dataFile)
+    {
+      dataFile.println(dataString);
+      // print to the serial port too:
+      Serial.println(dataString);
+    }
+    // if the file isn't open, pop up an error:
+    else
+    {
+      Serial.println("error opening servopos.txt");
+    }
   }
+
 #endif
 }
-
-#ifdef RECORD
-
-void appendFile(fs::FS &fs, const char *path)
-{
-  Serial.printf("Appending to file: %s\n", path);
-
-  File file = fs.open(path, FILE_APPEND);
-  if (!file)
-  {
-    Serial.println("Failed to open file for appending");
-    return;
-  }
-  if (file.printf("%d,%d,%d,%d\n", servo_values[0], servo_values[1], servo_values[2], servo_values[3]))
-  {
-    Serial.println("Message appended");
-  }
-  else
-  {
-    Serial.println("Append failed");
-  }
-  file.close();
-}
-
-void deleteFile(fs::FS &fs, const char *path)
-{
-  Serial.printf("Deleting file: %s\n", path);
-  if (fs.remove(path))
-  {
-    Serial.println("File deleted");
-  }
-  else
-  {
-    Serial.println("Delete failed");
-  }
-}
-#endif // RECORD
 
 void onConnect()
 {

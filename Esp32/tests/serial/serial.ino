@@ -60,8 +60,9 @@ void recvBytesWithStartEndMarkers() {
 
 void showNewData() {
     if (newData == true) {
+        string data ="";
         for (uint8_t n = 0; n < numReceived; n++) {
-            Serial.write(receivedBytes[n]);
+            data = data + String(((char)receivedBytes[n]));
         }
         Serial.println();
         newData = false;

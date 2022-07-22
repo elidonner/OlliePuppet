@@ -10,9 +10,70 @@
 
 #include "binary.h"
 
-#define TO_ESP 15
+const uint8_t numBytes = 32;
+uint8_t receivedBytes[numBytes];
+uint8_t numReceived = 0;
+int initialState;
+
+bool newData = false;
 
 Binary binary(52, 50, 48, 46, 44, 42, 40, 38);
+
+void recvBytesWithStartEndMarkers()
+{
+    static bool recvInProgress = false;
+    static uint8_t ndx = 0;
+    uint8_t startMarker = 0x3C; // this is the start marker <
+    uint8_t endMarker = 0x3E;   // this is the start marker >
+    uint8_t rb;
+
+    while (Serial.available() > 0 && newData == false)
+    {
+        rb = Serial.read();
+
+        if (recvInProgress == true)
+        {
+            if (rb != endMarker)
+            {
+                receivedBytes[ndx] = rb;
+                ndx++;
+                if (ndx >= numBytes)
+                {
+                    ndx = numBytes - 1;
+                }
+            }
+            else
+            {
+                receivedBytes[ndx] = '\0'; // terminate the string
+                recvInProgress = false;
+                numReceived = ndx; // save the number for use when printing
+                ndx = 0;
+                newData = true;
+            }
+        }
+
+        else if (rb == startMarker)
+        {
+            recvInProgress = true;
+        }
+    }
+}
+
+void record_file(int i)
+{
+    // which file is playing
+    Serial.print("Playing: ");
+    Serial.println(i);
+    // tell ESP
+    Serial1.print("<" + String(i) + ">");
+    // then play audio file
+    binary.write(i);
+    binary.wait_for_audio();
+    // once file is over
+    Serial1.print("<50>");
+    Serial.println("file_done");
+    delay(2000); // give user time to reset
+}
 
 void setup()
 {
@@ -21,7 +82,6 @@ void setup()
 
     // for comm with ESP
     Serial2.end();
-    pinMode(TO_ESP, INPUT);
     // Start the serial 1 for talking to esp
     Serial1.begin(115200);
 
@@ -31,26 +91,33 @@ void setup()
 
 void loop()
 {
-    if (Serial.available() > 0)
-    {
-        Serial.println("starting recording");
+    recvBytesWithStartEndMarkers();
 
-        for (int i = 0; i < 42; i++)
+    if (newData == true)
+    {
+        String data = "";
+        for (uint8_t n = 0; n < numReceived; n++)
         {
-            //which file is playing
-            Serial.print("Playing: ");
-            Serial.println(i);
-            //tell ESP
-            Serial1.println(i);
-            //then play audio file
-            binary.write(i);
-            binary.wait_for_audio();
-            //once file is over
-            Serial1.println(50);
-            Serial.println("file_done");
-            delay(2000); //give user time to reset
+            data = data + String(((char)receivedBytes[n]));
         }
+        Serial.println(data);
+
+        Serial.println("starting recording");
+        if (data.equals("all"))
+        {
+            for (int i = 0; i < 42; i++)
+            {
+                record_file(i);
+            }
+        }
+        else
+        {
+            int num = data.toInt();
+            record_file(num);
+        }
+
         Serial.println("all done");
-        while(1);
+
+        newData = false;
     }
 }
