@@ -11,7 +11,7 @@
 #define ADC_INPUT ADC1_CHANNEL_4 // pin 32
 
 /**** Comm stuff *****/
-#define FROM_ESP 15
+#define FROM_ARDUINO 33
 
 /**** SERVOSTUFF *****/
 #define SERVOPIN 25
@@ -51,8 +51,10 @@ void i2sInit()
 
 void setup()
 {
-  Serial.begin(115200);
-  delay(100);
+  // Serial.begin(115200);
+  // delay(100);
+
+  pinMode(FROM_ARDUINO, INPUT);
 
   // Initialize the I2S peripheral
   i2sInit();
@@ -65,7 +67,7 @@ void loop()
   static float maxsample, avgsample, smoothed;
   static uint32_t oldus;
 
-  if (digitalRead(FROM_ESP) == HIGH)
+  if (digitalRead(FROM_ARDUINO) == HIGH) 
   {
 
     i2s_read(I2S_PORT, (char *)samples, DMA_SIZE * sizeof(samples[0]), &num_bytes_read, portMAX_DELAY); // no timeout

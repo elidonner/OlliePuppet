@@ -16,6 +16,9 @@
         "__split_buffer": "cpp",
         "array": "cpp",
         "initializer_list": "cpp",
-        "iterator": "cpp"
+        "iterator": "cpp",
+        "chrono": "cpp",
+        "fstream": "cpp",
+        "locale": "cpp"
     }
 }

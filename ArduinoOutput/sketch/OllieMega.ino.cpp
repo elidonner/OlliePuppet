@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#line 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
 /**
  * UnoBright.ino
  * @author Ethan Donlon
@@ -22,6 +24,15 @@ int initialState;
 
 bool newData = false;
 
+#line 25 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
+void recvBytesWithStartEndMarkers();
+#line 66 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
+int handle_exceptions(int to_play);
+#line 122 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
+void setup();
+#line 139 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
+void loop();
+#line 25 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/OllieMega.ino"
 void recvBytesWithStartEndMarkers()
 {
   static bool recvInProgress = false;

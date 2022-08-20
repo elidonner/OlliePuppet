@@ -1,0 +1,22 @@
+[
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/cores/arduino"
+  },
+  {
+    "Sourcefile": null,
+    "Include": "",
+    "Includepath": "/Applications/Arduino.app/Contents/Java/hardware/arduino/avr/variants/mega"
+  },
+  {
+    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoOutput/sketch/OllieMega.ino.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoOutput/sketch/binary.cpp",
+    "Include": "",
+    "Includepath": null
+  }
+]

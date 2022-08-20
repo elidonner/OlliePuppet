@@ -21,8 +21,7 @@
 #define MISO 19
 #define MOSI 23
 #define CS 5
-#define TO_ARDUINO 2
-#define MOUTH 35
+#define FROM_ARDUINO 15
 
 /**
  * Miscellaneous Definitions
@@ -37,6 +36,12 @@
  */
 String file_name;
 HardwareSerial SerialPort(1); // use UART1
+const uint8_t numBytes = 32;
+uint8_t receivedBytes[numBytes];
+uint8_t numReceived = 0;
+int initialState;
+
+bool newData = false;
 
 /**
  * Global Objects
@@ -64,6 +69,11 @@ void readFile(fs::FS &fs, const char *path)
   Serial.print("Read from file: ");
   while (file.available())
   {
+    if (digitalRead(FROM_ARDUINO) == LOW)
+    {
+      break;
+    }
+    
     int leftNeck, rightNeck, leftEar, rightEar;
     buffer = file.readStringUntil(',');
     leftNeck = buffer.toInt();
@@ -79,6 +89,7 @@ void readFile(fs::FS &fs, const char *path)
     rightNeckServo.sendServo(rightNeck);
     leftEarServo.sendServo(leftEar);
     rightEarServo.sendServo(rightEar);
+
     delay(15);
   }
   file.close();
@@ -86,15 +97,56 @@ void readFile(fs::FS &fs, const char *path)
 
 /* -------------------------------------------------------------------------- */
 
+void recvBytesWithStartEndMarkers()
+{
+  static bool recvInProgress = false;
+  static uint8_t ndx = 0;
+  uint8_t startMarker = 0x3C; // this is the start marker <
+  uint8_t endMarker = 0x3E;   // this is the start marker >
+  uint8_t rb;
+
+  while (SerialPort.available() > 0 && newData == false)
+  {
+    rb = SerialPort.read();
+    Serial.println(rb);
+
+    if (recvInProgress == true)
+    {
+      if (rb != endMarker)
+      {
+        receivedBytes[ndx] = rb;
+        ndx++;
+        if (ndx >= numBytes)
+        {
+          ndx = numBytes - 1;
+        }
+      }
+      else
+      {
+        receivedBytes[ndx] = '\0'; // terminate the string
+        recvInProgress = false;
+        numReceived = ndx; // save the number for use when printing
+        ndx = 0;
+        newData = true;
+      }
+    }
+
+    else if (rb == startMarker)
+    {
+      recvInProgress = true;
+    }
+  }
+}
+
 /* -------------------------------------------------------------------------- */
 
 void setup()
 {
   // General
   Serial.begin(115200);
+  SerialPort.begin(115200, SERIAL_8N1, 9, 10);
   delay(3000);
-  pinMode(TO_ARDUINO, OUTPUT);
-  digitalWrite(TO_ARDUINO, LOW);
+  pinMode(FROM_ARDUINO, INPUT);
 
   // SD Card
   spi.begin(SCK, MISO, MOSI, CS);
@@ -122,16 +174,25 @@ void setup()
 }
 void loop()
 {
-  if (SerialPort.available() > 0)
+  recvBytesWithStartEndMarkers();
+
+  if (newData == true)
   {
-    String file_name = Serial.readStringUntil('\n');
-    int num = file_name.toInt();
+    file_name = "";
+    for (uint8_t n = 0; n < numReceived; n++)
+    {
+      file_name += String(((char)receivedBytes[n]));
+    }
     file_name = "/" + file_name + ".txt";
-    digitalWrite(TO_ARDUINO, HIGH);
-    digitalWrite(MOUTH, HIGH);
     readFile(SD, file_name.c_str());
-    digitalWrite(TO_ARDUINO, LOW);
-    digitalWrite(MOUTH, LOW);
+    
+    //reset the servos
+    leftNeckServo.sendServo(50);
+    rightNeckServo.sendServo(50);
+    leftEarServo.sendServo(0);
+    rightEarServo.sendServo(100);
+    //tell arduino we are finished
+    newData = false;
   }
-  
+
 }

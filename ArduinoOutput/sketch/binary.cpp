@@ -1,3 +1,4 @@
+#line 1 "/Users/ethandonlon/Documents/School/Fifth Year/FWM/OlliePuppet/ArduinoMega/BrightBin/binary.cpp"
 #include "binary.h"
 
 Binary::Binary(int _pin0, int _pin1, int _pin2, int _pin3, int _pin4, int _pin5, int _status_pin, int _input_pin):
