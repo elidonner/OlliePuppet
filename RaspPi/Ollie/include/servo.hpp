@@ -27,6 +27,11 @@ public:
     void moveToAngle(int angle);
 
     /**
+    * pause the servo
+    */
+    void pause();
+
+    /**
     * kill servo
     */
     void kill();

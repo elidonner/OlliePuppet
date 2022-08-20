@@ -23,6 +23,11 @@ void Servo::moveToAngle(int angle)
 
 }
 
+void Servo::pause()
+{
+    gpioServo(_pin, 0); //send no pulse to servo
+}
+
 void Servo::kill()
 {
     //tidy up the gpio

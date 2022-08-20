@@ -92,6 +92,10 @@ int main(int argc, char **argv)
         {
             interactions.track_w_servo(people.at(0));
         }
+        else
+        {
+            servo.pause();
+        }
 
 
         // Check for serial to see if audio is done playing
